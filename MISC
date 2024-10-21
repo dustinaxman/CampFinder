@@ -1,0 +1,2182 @@
+
+
+test grabbing reviews (all)
+test grabbing coverage
+test grabbing rating and num
+
+
+get list of all campgrounds and lat lon:
+
+
+
+
+
+
+
+
+make code to get ones nearby
+add them all to a doc and pass to camply (with time etc)
+look into grabbing the reviews (how many can I grab at once)
+extract the reviews, rating, cell coverage, and general info, put it with the other campground info
+moon, darkness, etc
+look into campSITE info
+given a campsite, get campground id
+given campground id, show ALL info
+
+
+
+
+import random
+import time
+import json
+import requests
+from bs4 import BeautifulSoup
+campground_id = 234382
+# Example URL for a campground (replace with the specific campground's URL)
+
+
+import json
+
+def convert_to_dict(input_string):
+    # Convert the input string into a Python dictionary
+    try:
+        python_dict = json.loads(input_string)
+        return python_dict
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        return None
+
+
+
+user_agents = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+]
+
+headers = {
+    "User-Agent": random.choice(user_agents)
+}
+
+campground_url = https://www.recreation.gov/api/ratingreview/public?parent_location_id=234382&parent_location_type=Campground&page_size=10&sort_key=MOST_RECENT&start_key=&rating=
+
+kcampground_url = f"https://www.recreation.gov/api/ratingreview/aggregate?location_id=234382&location_type=Campground" #&page_size=10&sort_key=MOST_RECENT
+
+# Send a request to get the page content
+response = requests.get(campground_url, headers=headers)
+
+convert_to_dict(response)
+
+
+https://www.recreation.gov/api/ratingreview/public?parent_location_id=234382&parent_location_type=Campground&page_size=10&sort_key=MOST_RECENT&start_key=&rating=
+
+SECOND REQUEST:
+https://www.recreation.gov/api/ratingreview/public?parent_location_id=234382&parent_location_type=Campground&page_size=10&sort_key=MOST_RECENT&start_key=eyJjcmVhdGVkX2F0Ijp7IlZhbHVlIjoiMjAyMy0wOS0wOVQwNDowMzo0NS41OTE0NTkyNDlaIn0sInBhcmVudF9sb2NhdGlvbl9jb21wb3NpdGVfaWQiOnsiVmFsdWUiOiIyMzQzODItQ2FtcGdyb3VuZCJ9LCJyZXNlcnZhdGlvbl9pZCI6eyJWYWx1ZSI6Ijg3YjA4NmFjLTViMWYtNGU1OS1hYTEzLTNlYjkzMDcwMjVhMCJ9fQ%3D%3D&rating=
+
+
+
+
+
+
+
+
+
+
+
+url = f"https://www.recreation.gov/api/camps/campgrounds/{campground_id}"
+campground"]["facility_description_map"]
+
+facility_name
+Overview
+Facilities
+Natural Features
+Nearby Attractions
+Recreation
+
+
+{'campground': {'facility_id': '234382', 'parent_asset_id': '1070', 'inventory_type_id': '3', 'facility_type': 'STANDARD', 'order_components': {'camping_equipment': True, 'group_leader_details': True, 'group_size': True, 'num_vehicles': True, 'pass': True}, 'facility_lookups': None, 'facility_description_map': {'Facilities': 'Spanish Creek campground offers several single-family campsites that accommodate both tent and RV camping, however hookups are not available.<br/><br/>\n Each site is equipped with tables and campfire rings with grills. Vault toilets and drinking water are also provided. A full-service store, gas and phone service is available less than 10 miles away.\n', 'Natural Features': 'This campground is located in the Plumas National Forest, which is attractive to outdoor enthusiasts because of its many streams and lakes, beautiful deep canyons, rich mountain valleys, meadows, and lofty peaks. Spanish Creek is in the Feather River Canyon, at an elevation of 2,000 feet.\n', 'Nearby Attractions': 'Within the Plumas National Forest, Spanish Creek campground is just a few short miles from Indian Falls. This is one attraction not to miss. Some have said that the mist created by the falls resembles a feather -- thus naming the Feather River. Just southeast on Highway 70 from Spanish Creek Campground is the quaint high Sierra town of Quincy. We recommend walking around the town if you get a chance. Very close to the campground is the Butterfly Valley Botanical Area. This is also a neat spot to explore. Before you get to the town of Quincy you will pass the Mount Hough Ranger District - a wonderful stop to discover more information about local area attractions. ', 'Overview': 'Spanish Creek Campground is located on Highway 70 just east of the Highway 89 intersection; just east of where Banish Creek and Indian Creek merge together to create the east branch of the North Fork Feather River. The campground is right on Spanish Creek with a very popular swimming hole. Although the campground has been recently upgraded, it still holds the charm that it did in years past. ', 'Recreation': 'Anglers enjoy a healthy supply of rainbow trout in the nearby Feather River, which is within walking distance from the campground. The river and nearby Spanish Creek are also popular for swimming and wading activities.\n', 'contact_info': 'For facility specific information, please call (530) 927-7878.'}, 'facility_name': 'SPANISH CREEK CAMPGROUND', 'city': 'Belden', 'state': 'California', 'facility_adaaccess': 'N', 'facility_directions': 'From Oroville, travel east on Highway 70 for 75 miles. The turnoff to the campground is two miles past Highway 89. From Quincy, travel west on Highway 70 for 8 miles. Campground is across the Spanish Creek bridge.\n', 'facility_email': '', 'facility_email_display': False, 'facility_map_url': '', 'facility_latitude': 40.0269444, 'facility_longitude': -120.9644444, 'facility_pho
+
+
+
+
+
+
+
+
+
+
+curl -X 'GET' \
+  'https://ridb.recreation.gov/api/v1/recareas/2880/facilities?limit=50&offset=0&state=CO,VA,NC&activity=6,BOATING&lastupdated=10-01-2018' \
+  -H 'accept: application/json'
+
+
+curl -X 'GET' \
+  'https://ridb.recreation.gov/api/v1/recareas?limit=50&offset=0&full=false&state=CA&lastupdated=10-01-2018' \
+  -H 'accept: application/json'
+
+
+
+RECREATION_GOV_API_KEY = os.environ["RECREATION_GOV_API_KEY"]
+campground_id = 232083
+headers = {
+    "accept": 'application/json',
+    "apikey": RECREATION_GOV_API_KEY 
+}
+#url = f"https://ridb.recreation.gov/api/v1/campsites/{campsite_id}"
+url = f"https://ridb.recreation.gov/api/v1/facilities/{campground_id}"
+response = requests.get(url,  headers=headers)
+# print(response)
+data = response.json()
+import pprint
+pprint.pprint(data)
+
+
+
+
+                  
+
+
+
+
+RECREATION_GOV_API_KEY = os.environ["RECREATION_GOV_API_KEY"]
+campsite_id = 10005266#79556# 99552
+headers = {
+    "accept": 'application/json',
+    "apikey": RECREATION_GOV_API_KEY 
+}
+url = f"https://ridb.recreation.gov/api/v1/campsites/{campsite_id}"
+response = requests.get(url,  headers=headers)
+# print(response)
+data = response.json()
+import pprint
+pprint.pprint(data)
+
+
+
+# import random
+# import time
+# import json
+# import requests
+# from bs4 import BeautifulSoup
+# campground_id = 234382
+# # Example URL for a campground (replace with the specific campground's URL)
+
+# user_agents = [
+#     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36",
+#     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+#     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+# ]
+
+# headers = {
+#     "User-Agent": random.choice(user_agents)
+# }
+
+
+# campground_url = f"https://www.recreation.gov/camping/campgrounds/{campground_id}?tab=ratings"
+
+# # Send a request to get the page content
+# response = requests.get(campground_url, headers=headers)
+
+# # Create a BeautifulSoup object to parse the HTML content
+# soup = BeautifulSoup(response.text, 'html.parser')
+
+# script_tag = soup.find('script', type='application/ld+json')
+
+# # Parse the content of the script tag as JSON
+# data = json.loads(script_tag.string)
+
+# # Extract the guest review count and average rating
+# review_count = data['aggregateRating']['reviewCount']
+# average_rating = data['aggregateRating']['ratingValue']
+
+# print(f"Guest Review Count: {review_count}")
+# print(f"Guest Review Average Rating: {average_rating}")
+
+# if response.status_code != 200:
+#     raise ValueError(response)
+
+# time.sleep(random.uniform(3, 8))
+
+
+# 79556
+
+
+
+
+
+import json
+
+
+with open("/Users/deaxman/Downloads/RIDBFullExport_V1_JSON/CampsiteAttributes_API_v1.json", "r") as f:
+	jsn = json.load(f)
+
+
+import json
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+
+with open("/Users/deaxman/Downloads/RIDBFullExport_V1_JSON/Facilities_API_v1.json", "r") as f:
+	jsn = json.load(f)
+
+
+
+facility_data = {}
+
+for facility in jsn["RECDATA"]:
+	if facility["Reservable"]:
+		facility_data[facility["FacilityID"]] = (facility["FacilityName"], facility["FacilityLatitude"], facility["FacilityLongitude"])
+
+
+# Create a figure and an axis with Cartopy's crs
+fig, ax = plt.subplots(figsize=(10, 7),
+                       subplot_kw={'projection': ccrs.PlateCarree()})
+
+# Add features like coastlines and borders
+ax.add_feature(cfeature.COASTLINE)
+ax.add_feature(cfeature.BORDERS)
+ax.add_feature(cfeature.STATES)
+
+# Set extent to show the USA (adjust if necessary)
+ax.set_extent([-130, -60, 20, 55], crs=ccrs.PlateCarree())
+
+# Plot each facility's latitude and longitude
+for facility_id, (name, lat, lon) in facility_data.items():
+    ax.plot(lon, lat, marker='o', color='red', markersize=5,transform=ccrs.PlateCarree())
+    #ax.text(lon + 0.5, lat, name, transform=ccrs.PlateCarree(), fontsize=8)
+
+# Set a title
+ax.set_title('Facilities in the USA')
+
+# Show the plot
+plt.show()
+
+>>> jsn["RECDATA"][10000]
+{'FacilityID': '250963', 'LegacyFacilityID': '', 'OrgFacilityID': '47402', 'ParentOrgID': '131', 'ParentRecAreaID': '1062', 'FacilityName': 'Trabuco RD', 'FacilityDescription': '<p>&nbsp; &nbsp;&nbsp;</p>', 'FacilityTypeDescription': 'Facility', 'FacilityUseFeeDescription': '', 'FacilityDirections': '', 'FacilityPhone': '', 'FacilityEmail': '', 'FacilityReservationURL': '', 'FacilityMapURL': '', 'FacilityAdaAccess': '', 'FacilityAccessibilityText': '', 'GEOJSON': {'TYPE': '', 'COORDINATES': None}, 'FacilityLongitude': 0, 'FacilityLatitude': 0, 'Keywords': '', 'StayLimit': '', 'Reservable': False, 'Enabled': True, 'LastUpdatedDate': '2020-09-10'}
+
+
+
+
+
+get list of campgrounds ALL
+for each campground, get list of campsites
+grab all data for campground and campsites (be careful with speed)
+put the data in a raw dump
+
+#CAMPGROUND: info + campsites
+#CAMPSITE: info + campground
+
+
+convert nicely, or extract?  make utils file with paths in jsn
+
+
+
+
+
+
+
+
+
+
+campground_ratings = get_campground_ratings(campground_id)
+campground_ratings["number_of_ratings"]
+
+
+for review in data["ratings"]
+
+
+
+
+
+
+
+
+RECREATION_GOV_API_KEY = os.environ["RECREATION_GOV_API_KEY"]
+
+
+
+
+campsite_info = get_campsite_info(campsite_id, api_key)
+campground_id = campsite_info["facility_id"]
+
+
+
+
+headers = {
+    "accept": 'application/json',
+    "apikey": RECREATION_GOV_API_KEY 
+}
+#url = f"https://ridb.recreation.gov/api/v1/campsites/{campsite_id}"
+url = f"https://ridb.recreation.gov/api/v1/facilities/{campground_id}"
+response = requests.get(url,  headers=headers)
+# print(response)
+data = response.json()
+import pprint
+pprint.pprint(data)
+
+
+
+
+headers = {
+    "accept": 'application/json',
+    "apikey": RECREATION_GOV_API_KEY 
+}
+offset = 0
+all_campsites = []
+while True:
+    url = f"https://ridb.recreation.gov/api/v1/facilities/272266/campsites?limit=50&offset={offset}"
+    response = requests.get(url,  headers=headers)
+    data = response.json()
+    all_campsites.extend(data["RECDATA"])
+    offset += 50
+    if len(data["RECDATA"]) == 0:
+        break
+
+
+
+
+all_campsites = []
+
+headers = {
+    "accept": 'application/json',
+    "apikey": RECREATION_GOV_API_KEY 
+}
+offset = 0
+url = f"https://ridb.recreation.gov/api/v1/facilities/232447/campsites?limit=10000&offset={offset}"
+response = requests.get(url,  headers=headers)
+data = response.json()
+len(data["RECDATA"])
+
+all_campsites.extend(data["RECDATA"])
+    
+
+    offset += 50
+    if len(data["RECDATA"]) == 0:
+        break
+
+
+import json
+with open("/Users/deaxman/Downloads/RIDBFullExport_V1_JSON/Facilities_API_v1.json", "r") as f:
+    jsn = json.load(f)
+
+#10001419
+    
+[facility for facility in jsn["RECDATA"] if int(facility["FacilityID"]) == 10001419]
+len([facility for facility in jsn["RECDATA"] if facility["Reservable"] and facility["FacilityTypeDescription"] == "Campground"])
+
+campsite_info = {}
+for facility in jsn["RECDATA"]:
+    if facility["Reservable"] and facility["FacilityTypeDescription"] == "Campground":
+        # count += 1
+        all_campsites = get_campsite_list_for_campground(facility["FacilityID"], RECREATION_GOV_API_KEY) 
+        print(facility["FacilityID"], len(all_campsites))
+        campsite_info[facility["FacilityID"]] = all_campsites
+        # if count % 40 == 0:
+        #     time.sleep()
+
+wat = [len(campsite_info[k]) for k in campsite_info if len(campsite_info[k]) > 0]
+len(wat)
+sum(wat)
+
+
+Thu Sep 26 06:04:40 UTC 2024
+Thu Sep 26 15:39:18 UTC 2024
+
+TODO:
+
+get non reservable
+get other sites!
+
+
+
+
+10086072 Beaver Creek
+400
+<Response [400]>
+
+
+
+
+
+
+
+"/Users/deaxman/Downloads/all_data_backup.json"
+
+
+
+
+
+["campsites"][]["attributes"][]
+
+
+cat /Users/deaxman/Downloads/recgov_converted_campgrounds_3784.jsonl | jq -r '.["campsites"][]["attributes"][] | "\(.[0]), \(.[1])"' | awk '
+  BEGIN { FS=", "; OFS=", " }
+  {
+    key = $1;
+    value = $2;
+    if (value ~ /^[0-9]+$/) {
+      type = "int";
+    } else if (value ~ /^[0-9]+\.[0-9]+$/) {
+      type = "float";
+    } else if (value == "true" || value == "false") {
+      type = "bool";
+    } else {
+      type = "string";
+    }
+    print key, type;
+  }
+' | sort | uniq
+
+
+
+accessibility, bool
+accessible boat ramp, bool
+accessible bock dock, bool
+accessible campsites, bool
+accessible drinking water, bool
+accessible fishing dock, bool
+accessible flush toilets, bool
+accessible grills, bool
+accessible occupant message, bool
+accessible parking, bool
+accessible picnic area, bool
+accessible picnic shelters, bool
+accessible pit toilets, bool
+accessible playground, bool
+accessible scenic overlook, bool
+accessible showers, bool
+accessible sites, bool
+accessible trails, bool
+accessible vault toilets, bool
+accessible walkways, bool
+adirondack shelter, bool
+air conditioning, bool
+air conditioning, string
+amphitheater, bool
+amphitheather, string
+anchorage, bool
+archeological sites, bool
+atm, bool
+axe, bool
+bait shop, bool
+base number of people, bool
+base number of people, int
+base number of vehicles, bool
+base number of vehicles, int
+baseball fields, bool
+basketball courts, bool
+bathtub, bool
+battery lights, bool
+bay access, bool
+bbq, bool
+beach access, bool
+bear pole, bool
+bed type, string
+bed(s) with mattress, bool
+bed(s), bool
+boat dock, bool
+boat maintenance, bool
+boat ramp, bool
+boat rentals, bool
+boat slips, bool
+boat storage, bool
+boat trailer parking, bool
+boat trips, bool
+broom & dust pan, bool
+bucket & shovel, bool
+bunkbed(s), bool
+bunkbeds(s) with mattresses, bool
+bus stop, bool
+butterfly garden, bool
+cabin electricity, bool
+cabin heating, bool
+cabin heating, string
+cable tv access, bool
+campfire allowed, bool
+campfire circles, bool
+campfire programs, bool
+campfire rings, bool
+camping supplies, bool
+canoe rentals, bool
+capacity rating, string
+casino, bool
+cave tours, bool
+cell phone service, bool
+checkin time, string
+checkout time, string
+cleaning equipment, bool
+cleaning supplies, bool
+clothes dryer, bool
+clothes-dryer, bool
+clothes-line, bool
+clothes-washer, bool
+clothesline, bool
+coffee pot, bool
+coin showers, bool
+coin showers, string
+coleman lantern (fuel not provided), bool
+coleman stove (fuel not provided), bool
+community park, bool
+concessions, bool
+concessions, string
+condition rating, string
+cooking area, bool
+cooking pots, bool
+cooking utensils, bool
+corrals, bool
+cot(s), bool
+couches, bool
+creek access, bool
+day use area, bool
+deck, bool
+dining area, bool
+dish-washer, bool
+dock, bool
+double driveway, bool
+drinking water (hand pump), bool
+drinking water (peak season), bool
+drinking water, bool
+drinking water, string
+driveway entry, string
+driveway grade, string
+driveway length, float
+driveway length, int
+driveway length, string
+driveway surface, string
+dump station, bool
+dump station, string
+dvd player, bool
+educational programs, bool
+electric heating, bool
+electric stove, bool
+electricity hookup, bool
+electricity hookup, int
+electricity hookup, string
+electricity, bool
+emergency phone, bool
+emergency phone, string
+emergency services, bool
+entrance station, bool
+event area, bool
+fax hookup, bool
+fenced pastures, bool
+fire extinguisher, bool
+fire pit, bool
+fire ring, bool
+fireplace, bool
+firewood vender, bool
+firewood, bool
+first aid kit, bool
+first aid station, bool
+fish cleaning stations, bool
+fish hatchery, bool
+fishing dock, bool
+fishing guide, bool
+fishing licenses, bool
+fishing pier, bool
+fitness trails, bool
+flush toilets (seasonal), bool
+flush toilets, bool
+food locker, bool
+food storage locker, bool
+foot storage locker, bool
+fridge with freezer, bool
+fridge, bool
+fuel available, bool
+full hookup, bool
+full hookup, int
+furnished, bool
+futon(s), bool
+gas heating, bool
+general store, bool
+general store, string
+generator free, bool
+geological attractions, bool
+gift shop, bool
+gift shop, string
+grills, bool
+grills/fire ring, bool
+grills/fire ring, string
+grocery store, bool
+group allowed, bool
+group cooking facilities, bool
+heater, bool
+heating stove, bool
+hike in distance to site, bool
+hike in distance to site, float
+hike in distance to site, int
+hike in distance to site, string
+historic sites, bool
+hitching racks, bool
+horse corrals, bool
+horse hitching post, bool
+horse staging area, bool
+horse stall/corral, bool
+horse stalls, bool
+horse watering station, bool
+horseback riding trails, bool
+horseshoe pit, bool
+host, bool
+host, string
+hot water, bool
+ice machine, bool
+ice, bool
+internet access, bool
+interpretive trails, bool
+is double driveway, bool
+is equip mandatory, bool
+is equipment mandatory, bool
+kayak rentals, bool
+kennel, bool
+kitchen (no water), bool
+kitchen, bool
+lake access, bool
+lantern pole, bool
+lantern posts, bool
+lantern, bool
+laundry facilities, bool
+lean to/shelter, bool
+lifeguards, bool
+lighthouse, bool
+lighting, bool
+lighting, string
+lights, bool
+living room, bool
+location rating, string
+lookout tower, bool
+manure disposal, bool
+marina, bool
+mattress pad(s), bool
+max num of horses, int
+max num of horses, string
+max num of people, bool
+max num of people, int
+max num of people, string
+max num of vehicles, int
+max num of vehicles, string
+max vehicle length, int
+max vehicle length, string
+meat shed, bool
+microwave, bool
+min num of people, int
+min num of people, string
+min num of vehicles, int
+min num of vehicles, string
+mop, bool
+motor boat rentals, bool
+motorcycle trails, bool
+multi-use court, bool
+near water, bool
+non smoking, bool
+non-potable water, bool
+num of beds, int
+num of beds, string
+num rooms, int
+num rooms, string
+off-road vehicle trails, bool
+oil heating, bool
+outdoor cooler box, bool
+outdoor showers, bool
+outhouse, bool
+oven, bool
+parking area, bool
+parking area, string
+paved parking, bool
+paved pathways, bool
+paved roads, bool
+paved sites, bool
+pay phone, bool
+pets allowed, bool
+pets allowed, string
+picnic area, bool
+picnic shelters, bool
+picnic table, bool
+picnic table, string
+picnic tables, bool
+pit toilets, bool
+placed on map, bool
+placed on map, int
+platform, bool
+playgroiund, bool
+playground, bool
+pontoon rental, bool
+porch, bool
+porch, string
+portable toilets, bool
+privacy, bool
+propane fireplace, bool
+propane grills, bool
+propane heat, bool
+propane heating, bool
+propane lantern (fuel not provided), bool
+propane lantern, bool
+propane lights, bool
+propane oven, bool
+propane refridgerator, bool
+propane stove, bool
+propane, bool
+proximity to water, string
+quiet area, bool
+radio, bool
+rain catchment barrel, bool
+ranger station, bool
+recycling, bool
+refrigerator, bool
+restaurant, bool
+restaurant, string
+river access, bool
+rv parking, bool
+rv storage, bool
+satellite tv access, bool
+saw, bool
+scenic overlooks, bool
+security lights, bool
+self pay station, bool
+sewer hookup, bool
+sewer hookups, bool
+shade, bool
+shade, string
+shooting range, bool
+shower/bath type, string
+showers (seasonal), bool
+showers, bool
+shuttle bus service, bool
+site height, int
+site height, string
+site length, int
+site length, string
+site rating, string
+site reserve type, string
+site width, float
+site width, int
+site width, string
+sleeping shelter, bool
+small refridgerator, bool
+smoke alarm, bool
+snow shovel, bool
+soccer fields, bool
+softball fields, bool
+stock watering tank, bool
+stove/fridge, bool
+stove/fridge, string
+stove/oven, bool
+supplies, bool
+supplies, string
+table & benches, bool
+table & chairs, bool
+table, bool
+tables, bool
+telephone hookup, bool
+telephone, bool
+tennis courts, bool
+tent pad length, float
+tent pad length, int
+tent pad length, string
+tent pad width, float
+tent pad width, int
+tent pad width, string
+tent pad, bool
+tent pads, bool
+toilet, bool
+trailhead parking, bool
+trailheads, bool
+trash collection, bool
+twin bed platform, bool
+twin bed(s), bool
+type of site access, bool
+type of site access, string
+utility sinks, bool
+vault toilets, bool
+visitor center, bool
+visitor center, string
+volleyball courts, bool
+washer & dryer, bool
+water (seasonal), bool
+water hookup, bool
+water hookup, string
+water spigot, bool
+water troughs, bool
+waterfront sites, bool
+wind shelters, bool
+wireless internet, bool
+wood heating, bool
+wood stove, bool
+woodstove/fireplace, bool
+
+
+
+
+cat /Users/deaxman/Downloads/recgov_converted_campgrounds_3784.jsonl | jq -r '.["activities"][]' | sort | uniq
+activities:
+
+
+Accessible Swimming
+Amphitheater
+Antiquing
+Archery
+Auto Touring
+BIKING
+BOATING
+Backpacking
+Badminton
+Beach Camping
+Beachcombing
+Berry Picking
+Biking
+Bird Watching
+Birding
+Boat Rental
+Boating
+CAMPING
+CLIMBING
+Camping
+Canoeing
+Caving
+Clam Digging
+Climbing
+Crabbing
+Crawfishing
+Cross Country Skiing
+Cultural Activities
+DAY USE AREA
+Day Use Area
+Disc Golf
+Diving
+Downhill Skiing
+Educational Programs
+Environmental Education
+Evening Programs
+FIRE LOOKOUTS/CABINS OVERNIGHT
+FISH HATCHERY
+FISHING
+Fire Lookouts/Cabins Overnight
+Fish Hatchery
+Fish Viewing Site
+Fishing
+Gold Panning
+Golf
+Gondola Rides
+Guided Interpretive Walks
+HIKING
+HISTORIC & CULTURAL SITE
+HORSEBACK RIDING
+HOTEL/LODGE/RESORT PRIVATELY OWNED
+HUNTING
+Hiking
+Hiking Trail
+Historic & Cultural Site
+Historic Sites
+Horse Camping
+Horseback Riding
+Hotel/Lodge/Resort Fs Owned
+Hotel/Lodge/Resort Privately Owned
+Hunting
+INTERPRETIVE PROGRAMS
+Ice Climbing
+Ice Fishing
+Information Site
+Interpretive Programs
+Jet Skiing
+Kayaking
+Lookout Tower
+Marina
+Motel
+Motor Boat
+Mountain Biking
+Mountain Climbing
+Museum
+Mushroom Picking
+Non-Motorized Boating
+OTHER RECREATION CONCESSION SITE
+Observation Site
+Off Highway Vehicle
+Off Highway Vehicle Trails
+Off Road Vehicle Trails
+Organization Site Fs Owned
+Other Recreation Concession Site
+PICNICKING
+Paddle Boating
+Paddling
+Photography
+Picnic Tables
+Picnicking
+Playground Park Specialized Sport Site
+Rafting
+Ranger Station
+Recreation Programs
+Recreation Residence
+Recreational Shooting
+Recreational Vehicles
+River Trips
+Rock Climbing
+SWIMMING SITE
+Sailboarding
+Sailing
+Scenic Drive
+Scuba Diving
+Sea Kayaking
+Shuffle Board
+Skiing
+Sledding
+Snorkeling
+Snowboarding
+Snowmobile
+Snowmobile Trails
+Snowmobiling
+Snowshoeing
+Soccer Fields
+Softball Fields
+Star Gazing
+Stargazing
+Surfing
+Swimming
+Swimming Site
+Trails, All Terrain/Ohv
+Trails, Difficult Hiking
+Trails, Horse
+Tubing
+VISITOR CENTER
+Visitor Center
+WATER SPORTS
+WILDLIFE VIEWING
+WINTER SPORTS
+Water Access
+Water Activities
+Water Skiing
+Water Sports
+Whale Watching
+Whitewater Rafting
+Wild Horse Viewing
+Wilderness
+Wildlife Viewing
+Windsurfing
+Winery Tours
+Winter Sports
+Wood Cutting
+
+
+
+
+cat /Users/deaxman/Downloads/recgov_converted_campgrounds_3784.jsonl | jq -r '.["amenities"][]' | sort | uniq
+amenities:
+
+
+ATM
+Accessible Boat Dock
+Accessible Boat Ramp
+Accessible Bock Dock
+Accessible Campsites
+Accessible Drinking Water
+Accessible Fishing Dock
+Accessible Flush Toilets
+Accessible Grills
+Accessible Handicapped Site
+Accessible Hiking Trails
+Accessible Parking
+Accessible Picnic Area
+Accessible Picnic Areas
+Accessible Picnic Shelters
+Accessible Pit Toilets
+Accessible Playground
+Accessible Restroom
+Accessible Scenic Overlook
+Accessible Showers
+Accessible Site
+Accessible Sites
+Accessible Trails
+Accessible Vault Toilet
+Accessible Vault Toilets
+Accessible Walkways
+Amphitheater
+Archeological Sites
+Atv Area
+Axe
+Bait Shop
+Bank
+Baseball Fields
+Basketball Court
+Basketball Courts
+Bath House
+Bathtub
+Battery Lights
+Bay Access
+Beach
+Beach Access
+Bear Pole
+Bed(s)
+Bed(s) with mattress
+Bike Rentals
+Bike Trails
+Biking
+Birding
+Boardwalk
+Boat Dock
+Boat Launch Ramp
+Boat Ramp
+Boat Rental
+Boat Rentals
+Boat Slips
+Boat Storage
+Boat Trailer Parking
+Boat Trips
+Boating
+Botanical Gardens
+Broom & Dust Pan
+Bucket & Shovel
+Bunkbed(s)
+Bunkbeds(s) with mattresses
+Bus Stop
+Butterfly Garden
+Cafe
+Campfire Circles
+Campfire Programs
+Campfire Rings
+Campground Host
+Camping Supplies
+Canoe Rentals
+Canoeing
+Cave Tours
+Cell Phone Service
+Church
+Cleaning Equipment
+Cleaning Supplies
+Clothes Dryer
+Clothesline
+Coffee Pot
+Coin Showers
+Coleman Lantern (Fuel not provided)
+Coleman Stove (Fuel not provided)
+Comfort Station
+Community Park
+Concession (seasonal)
+Concessions
+Cooking Area
+Cooking Pots
+Cooking Utensils
+Corrals
+Cot(s)
+Couches
+Covered Parking
+Creek Access
+Cultural Activities
+Cultural Center
+DVD Player
+Day Use Area
+Dining Area
+Dock
+Drinking Water
+Drinking Water (Hand Pump)
+Drinking Water (Peak Season)
+Drinking Water (hand pump)
+Drinking Water (peak season)
+Dump Station
+Dumpster
+Educational Programs
+Electric Hook-Up
+Electric Hookups
+Electric Stove
+Electricity
+Emergency Phone
+Emergency Services
+Entrance Station
+Equestrian Sites
+Event Area
+Fee Booth
+Fee Station
+Fire Extinguisher
+Fire Finder
+Fire Pit
+Fire Rings
+Fireplace
+Firewood
+Firewood Vender
+Firewood Vendor
+First Aid Kit
+First Aid Station
+Fish Cleaning Station
+Fish Cleaning Stations
+Fish Hatchery
+Fishing
+Fishing Cleaning Stations
+Fishing Dock
+Fishing Guide
+Fishing Licenses
+Fishing Pier
+Fishing River
+Fitness Trails
+Flush Toilet
+Flush Toilets
+Flush Toilets (Seasonal)
+Food Storage Locker
+Foot Storage Locker
+Fuel Available
+Futon(s)
+Gatehouse
+General Store
+Geological Attractions
+Gift Shop
+Grill
+Grills
+Grocery Store
+Group Camping
+Group Cooking Facilities
+Handicap Access
+Heater
+Heating Stove
+Hiking
+Hiking Trail
+Historic Sites
+Hitching Racks
+Horse Corrals
+Horse Rentals
+Horse Staging Area
+Horse Stalls
+Horse Watering Station
+Horseback Riding
+Horseback Riding Trails
+Horseshoe Pit
+Hospital
+Host
+Host Site
+Hot Springs
+Hot Water
+Ice
+Ice Machine
+Information
+Information Center
+Interpretive Trails
+Kayak Rentals
+Kayaking
+Kennel
+Kitchen
+Kitchen (No Water)
+Lake Access
+Lantern
+Lantern Posts
+Laundry Facilities
+Lifeguards
+Lighthouse
+Lights
+Loder Trail Entrance
+Lookout Tower
+Marina
+Mattress Pad(s)
+Meat Shed
+Men'S Restroom/Shower
+Microwave
+Mop
+Motor Boat Rentals
+Motorcycle Trails
+Multi-Use Court
+Multi-use Court
+Museum
+Non-Motorized Boating
+Non-Potable Water
+Off-Road Vehicle Trails
+Outdoor Showers
+Outfitter Guide Services
+Outhouse
+Oven
+Park Attendant
+Parking
+Parking Area
+Paved Parking
+Paved Pathways
+Paved Roads
+Paved Sites
+Pavilion
+Pay Phone
+Pay Station
+Pets Allowed
+Picnic Area
+Picnic Pavilion
+Picnic Shelter
+Picnic Shelters
+Picnic Table
+Picnic Tables
+Pit Toilet
+Pit Toilets
+Playgroiund
+Playground
+Pontoon Rental
+Portable Toilets
+Propane
+Propane Fireplace
+Propane Fuel Available
+Propane Grills
+Propane Heat
+Propane Lantern
+Propane Lantern (Fuel not provided)
+Propane Lights
+Propane Oven
+Propane Refridgerator
+Propane Stove
+Public Hydrant
+RV Parking
+RV Supplies
+Ranger Station
+Recreation Center
+Recycling
+Refrigerator
+Restaurant
+Restroom
+Restrooms
+Restrooms (Flush Toilet)
+River Access
+Scenic Drive
+Scenic Overlooks
+Security Lights
+Self Pay Station
+Self-Pay Station
+Sewer Hookup
+Sewer Hookups
+Shade 
+Shooting Range
+Shower
+Showers
+Showers (Seasonal)
+Shuttle Bus Service
+Skiing
+Sleeping Shelter
+Small Refridgerator
+Smoke Alarm
+Snow Shovel
+Soccer Fields
+Softball Fields
+Spence Cabin
+Stable
+Stock Watering Tank
+Swimming
+Swimming Pool
+Table & Benches
+Table & Chairs
+Tables
+Telephone
+Tennis Courts
+Tent Pad
+Tent Pads
+Tent Sites
+Toilet, Accessible
+Toilet, Flush
+Toilet, Pit/Vault
+Trailhead Parking
+Trailheads
+Trails
+Trash Collection
+Trash Dumpsters
+Twin Bed Platform
+Twin Bed(s)
+Utility Sinks
+Vault Toilet
+Vault Toilets
+Vending Machines
+Visitor Center
+Visitors Center
+Volleyball Court
+Volleyball Courts
+Walk-in Freezer
+Washer & Dryer
+Water
+Water (Seasonal)
+Water Drinking
+Water Hookups
+Water Hydrant
+Water Spigot
+Water Troughs
+Waterfront Sites
+Wildlife Viewing
+Wind Shelters
+Wireless Internet
+Women'S Restroom/Shower
+Wood Stove
+
+
+
+
+cat /Users/deaxman/Downloads/recgov_converted_campgrounds_3784.jsonl | jq -r '.["campsites"][]["attributes"][] | select(.[0] == "${testkey}") | .[1]' | sort | uniq
+
+
+
+placed on map: int bool 
+restaurant: string bool 
+water hookup: string bool 
+dump station: string bool 
+pets allowed: string bool 
+min num of people: int string 
+coin showers: string bool 
+max vehicle length: int string 
+
+picnic table: bool string 
+general store: bool string 
+site width: int float string 
+
+
+
+
+
+
+lighting: string bool 
+tent pad length: string float int 
+
+
+air conditioning: string bool 
+site length: int string 
+host: string bool 
+base number of people: int bool 
+visitor center: bool string 
+type of site access: string bool 
+
+
+parking area: string bool 
+cabin heating: bool string 
+concessions: bool string 
+num rooms: int string 
+
+
+max num of people: string bool int 
+
+supplies: string bool 
+porch: string bool 
+grills/fire ring: bool string 
+driveway length: int string float 
+
+
+gift shop: bool string 
+
+min num of vehicles: string int 
+max num of horses: int string 
+tent pad width: int float string 
+
+
+emergency phone: string bool 
+stove/fridge: string bool 
+num of beds: int string 
+
+electricity hookup: int bool string 
+drinking water: bool string 
+full hookup: int bool 
+site height: int string 
+max num of vehicles: int string 
+
+shade: bool string 
+hike in distance to site: bool string int float 
+base number of vehicles: int bool 
+
+
+
+(base) MacBook-Air-6:CampFinder deaxman$ cat /Users/deaxman/Downloads/recgov_converted_campgrounds_3784.jsonl | jq -r '.["campsites"][]["attributes"][] | "\(.[0]), \(.[1])"' | awk '
+  BEGIN { FS=", "; OFS=", " }
+  {
+    key = $1;
+    value = $2;
+
+    # Determine the type of the value
+    if (value ~ /^[0-9]+$/) {
+      type = "int";
+    } else if (value ~ /^[0-9]+\.[0-9]+$/) {
+      type = "float";
+    } else if (value == "true" || value == "false") {
+      type = "bool";
+    } else {
+      type = "string";
+    }
+
+    # Store the type for each key
+    if (types[key] == "") {
+      types[key] = type;
+    } else if (types[key] != type) {
+      # If the key has a different type, mark it
+      mixed_types[key] = 1;
+    }
+
+    # Store the key-type pair
+    seen[key "," type] = 1;
+  }
+
+  END {
+    # Print keys that have multiple types
+    for (key in mixed_types) {
+      printf "%s: ", key;
+      for (pair in seen) {
+        split(pair, parts, ",");
+        if (parts[1] == key) {
+          printf "%s ", parts[2];
+        }
+      }
+      print "";
+    }
+  }
+'
+
+
+
+
+python3.9 -m pip install camply
+
+
+
+camply recreation-areas --search "Yosemite National Park"
+camply campgrounds --rec-area 2991
+camply campgrounds --search "Fire Tower Lookout" --state CA
+
+
+
+
+
+
+camply campsites \
+    --campground 232493 \
+    --campground 251869 \
+    --campground 232492 \
+    --start-date 2023-07-10 \
+    --end-date 2023-07-18
+
+
+
+camply campsites \
+    --campground 232446 \
+    --start-date 2023-05-01 \
+    --end-date 2023-08-01 \
+    --day Tuesday \
+    --day Wednesday
+
+
+camply campsites \
+    --rec-area 2991 \
+    --start-date 2023-05-01 \
+    --end-date 2023-08-01 \
+    --weekends \
+    --notifications email \
+    --polling-interval 5 \
+    --equipment Tent 0
+    --equipment Vehicle 0
+
+
+camply campsites \
+    --rec-area 2991 \
+    --start-date 2023-05-01 \
+    --end-date 2023-08-01 \
+    --nights 4
+
+
+camply campsites \
+    --provider yellowstone \
+    --start-date 2023-07-09 \
+    --end-date 2023-07-17 \
+    --continuous
+
+
+
+provider: RecreationDotGov # RecreationDotGov IF NOT PROVIDED
+recreation_area: # (LIST OR SINGLE ENTRY)
+    - 2991 # Yosemite National Park, CA (All Campgrounds)
+    - 1074 # Sierra National Forest, CA (All Campgrounds)
+campgrounds: # ENTIRE FIELD CAN BE OMITTED IF NOT USED - (LIST OR SINGLE ENTRY)
+campsites: # OVERRIDES CAMPGROUNDS / RECREATION AREA - (LIST OR SINGLE ENTRY)
+start_date: 2023-09-12 # YYYY-MM-DD - (LIST OR SINGLE ENTRY)
+end_date: 2023-09-13 # YYYY-MM-DD - (LIST OR SINGLE ENTRY)
+days: # Array of day names - DEFAULTS TO `null`
+weekends: false # Only search for weekend bookings (Fri/Sat nights). FALSE BY DEFAULT
+nights: 1 # 1 BY DEFAULT
+continuous: true # DEFAULTS TO TRUE
+polling_interval: 5 # DEFAULTS TO 10 , CAN'T BE LESS THAN 5
+notifications: email # (silent, email, pushover, pushbullet, and telegram), DEFAULTS TO `silent`
+search_forever: true # FALSE BY DEFAULT
+search_once: false # FALSE BY DEFAULT
+notify_first_try: false # FALSE BY DEFAULT
+equipment: # Array of Equipment Search Lists - DEFAULTS TO `null`
+offline_search: false # FALSE BY DEFAULT
+offline_search_path: camply_campsites.json # Defaults to `camply_campsites.json`
+
+recreation_area:
+    - 2991
+start_date: 2023-07-09
+end_date: 2023-07-17
+nights: 5
+equipment:
+    - [RV, 25]
+
+camply campsites --yaml-config example_search.yaml
+
+
+
+
+
+
+
+
+
+233683
+
+
+from datetime import datetime
+import logging
+from typing import List
+
+from camply.containers import AvailableCampsite, SearchWindow
+from camply.search import SearchRecreationDotGov
+
+logging.basicConfig(format="%(asctime)s [%(levelname)8s]: %(message)s",
+                    level=logging.INFO)
+
+month_of_june = SearchWindow(start_date=datetime(year=2024, month=11, day=1),
+                             end_date=datetime(year=2024, month=11, day=30))
+camping_finder = SearchRecreationDotGov(search_window=month_of_june,
+                                        days_of_the_week=None, #or [0,1,2,3,4,5,6] Monday is 0 and Sunday is 6
+                                        campgrounds=233683,  # Glacier Ntl Park
+                                        weekends_only=True,
+                                        nights=2)
+
+
+
+matches = camping_finder.get_matching_campsites(log=True, verbose=True, continuous=False)
+
+
+AvailableCampsite(campsite_id=42013, booking_date=datetime.datetime(2024, 11, 1, 0, 0), booking_end_date=datetime.datetime(2024, 11, 2, 0, 0), booking_nights=1, campsite_site_name='037', campsite_loop_name='A-WESA', campsite_type='STANDARD NONELECTRIC', campsite_occupancy=(1, 8), campsite_use_type='Overnight', availability_status='Available', recreation_area='New Hogan Lake, CA', recreation_area_id=476, facility_name='Acorn Campground', facility_id=233683, booking_url='https://www.recreation.gov/camping/campsites/42013', location=CampsiteLocation(latitude=np.float64(38.177261), longitude=np.float64(-120.799889)), permitted_equipment=[RecDotGovEquipment(equipment_name='Tent', max_length=4.0), RecDotGovEquipment(equipment_name='RV', max_length=40.0), RecDotGovEquipment(equipment_name='Trailer', max_length=36.0), RecDotGovEquipment(equipment_name='Large Tent Over 9X12`', max_length=0.0)], campsite_attributes=[RecDotGovAttribute(attribute_category='site_details', attribute_id=52, attribute_name='Max Num of People', attribute_value='8'), RecDotGovAttribute(attribute_category='site_details', attribute_id=10, attribute_name='Capacity/Size Rating', attribute_value='Single'), RecDotGovAttribute(attribute_category='site_details', attribute_id=11, attribute_name='Checkin Time', attribute_value='3:00 PM'), RecDotGovAttribute(attribute_category='site_details', attribute_id=56, attribute_name='Min Num of People', attribute_value='1'), RecDotGovAttribute(attribute_category='site_details', attribute_id=9, attribute_name='Campfire Allowed', attribute_value='Yes'), RecDotGovAttribute(attribute_category='site_details', attribute_id=12, attribute_name='Checkout Time', attribute_value='2:00 PM'), RecDotGovAttribute(attribute_category='site_details', attribute_id=65, attribute_name='Pets Allowed', attribute_value='Yes'), RecDotGovAttribute(attribute_category='site_details', attribute_id=77, attribute_name='Shade', attribute_value='Yes'), RecDotGovAttribute(attribute_category='equipment_details', attribute_id=23, attribute_name='Driveway Entry', attribute_value='Back-in'), RecDotGovAttribute(attribute_category='equipment_details', attribute_id=0, attribute_name='Driveway Length', attribute_value='43'), RecDotGovAttribute(attribute_category='equipment_details', attribute_id=0, attribute_name='Is Equipment Mandatory', attribute_value='true'), RecDotGovAttribute(attribute_category='equipment_details', attribute_id=54, attribute_name='Max Vehicle Length', attribute_value='20'), RecDotGovAttribute(attribute_category='equipment_details', attribute_id=53, attribute_name='Max Num of Vehicles', attribute_value='2'), RecDotGovAttribute(attribute_category='equipment_details', attribute_id=26, attribute_name='Driveway Surface', attribute_value='Paved'), RecDotGovAttribute(attribute_category='amenities', attribute_id=31, attribute_name='Fire Pit', attribute_value='Y'), RecDotGovAttribute(attribute_category='amenities', attribute_id=67, attribute_name='Picnic Table', attribute_value='Y'), RecDotGovAttribute(attribute_category='amenities', attribute_id=301, attribute_name='Map Y Coordinate', attribute_value='397.711853027344'), RecDotGovAttribute(attribute_category='amenities', attribute_id=314, attribute_name='Placed on Map', attribute_value='1'), RecDotGovAttribute(attribute_category='amenities', attribute_id=4, attribute_name='BBQ', attribute_value='Y'), RecDotGovAttribute(attribute_category='amenities', attribute_id=300, attribute_name='Map X Coordinate', attribute_value='189.919509887695')])
+
+matches[0].campsite_id
+
+PyWeather
+
+
+
+
+
+
+First Request:
+
+URL: https://ridb.recreation.gov/api/v1/facilities/233683?full=True
+Purpose: This request fetched detailed information about the facility (in this case, the Acorn Campground).
+Second Request:
+
+URL: https://www.recreation.gov/api/search/campsites?start=0&size=1000&fq=asset_id%3A233683&include_non_site_specific_campsites=True
+Purpose: This request fetched metadata for campsites in the specified campground.
+Third Request:
+
+URL: https://www.recreation.gov/api/camps/availability/campground/233683/month?start_date=2024-11-01T00%3A00%3A00.000Z
+Purpose: This request fetched the availability data for the campground for the month of November 2024.
+
+
+(campfinder) (base) MacBook-Air-6:YoutubeAudio deaxman$ grep -r "api\/camps\/availability" /Users/deaxman/Projects/CampFinder/campfinder/lib/python3.9/site-packages/camply/*
+Binary file /Users/deaxman/Projects/CampFinder/campfinder/lib/python3.9/site-packages/camply/config/__pycache__/api_config.cpython-39.pyc matches
+/Users/deaxman/Projects/CampFinder/campfinder/lib/python3.9/site-packages/camply/config/api_config.py:    API_BASE_PATH: str = "api/camps/availability/campground/"
+
+
+
+
+fetch('https://ridb.recreation.gov/api/v1/facilities', {
+    method: 'GET',
+    headers: {
+        'accept': 'application/json',
+        'apikey': 'YOUR_API_KEY'
+    },
+    qs: {
+        state: 'CO',
+        activity: 'Hiking'
+    }
+}).then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error(error));
+
+
+
+
+
+import requests
+import os
+
+RECREATION_GOV_API_KEY = os.environ["RECREATION_GOV_API_KEY"]
+headers = {
+    "accept": 'application/json',
+    "apikey": RECREATION_GOV_API_KEY 
+}
+
+
+campsite_id = 63112
+campground_id = 234541
+#url = f"https://ridb.recreation.gov/api/v1/campsites/{campsite_id}"
+url = f"https://ridb.recreation.gov/api/v1/facilities/{campground_id}"
+response = requests.get(url,  headers=headers)
+# print(response)
+data = response.json()
+
+latitude = data[0]['FacilityLatitude']
+longitude = data[0]['FacilityLongitude']
+
+# import pprint
+# pprint.pprint(data)
+
+# Extract latitude and longitude of the campground
+# latitude = data[0]['CampsiteLatitude']
+# longitude = data[0]['CampsiteLongitude']
+
+
+
+import requests
+import time
+
+# Function to convert Python datetime to UNIX timestamp
+def get_unix_timestamp(date):
+    return int(time.mktime(date.timetuple()))
+
+# Example date (pass a python datetime object)
+date = datetime(2024, 9, 22)
+
+# Get the UNIX timestamp for the specific date
+timestamp = get_unix_timestamp(date)
+
+
+import requests
+from datetime import datetime, timedelta
+
+# OpenWeatherMap API setup
+
+
+OPENWEATHER_API_KEY = os.environ["OPENWEATHER_API_KEY"]
+
+lat = latitude  # Latitude from campground info
+lon = longitude  # Longitude from campground info
+
+print(lat, lon)
+
+
+
+# Use the OpenWeatherMap One Call API to get weather forecast for a specific date
+#weather_url = f"https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&units=imperial&exclude=current,minutely,hourly,alerts&appid={OPENWEATHER_API_KEY}"
+#weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=imperial&exclude=current,minutely,hourly,alerts&appid={OPENWEATHER_API_KEY}"
+#weather_url = f"https://api.openweathermap.org/data/2.5/forecast/daily?lat={lat}&lon={lon}&units=imperial&exclude=current,minutely,hourly,alerts&appid={OPENWEATHER_API_KEY}"
+#weather_url = f"https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={timestamp}&appid={OPENWEATHER_API_KEY}"
+
+current_date = datetime.now()
+eight_days_in_future = current_date + timedelta(days=8)
+
+
+print(f"Current date: {current_date}")
+print(f"Requested date: {date}")
+
+if date < eight_days_in_future:
+    print("Using more accurate daily weather <8 days")
+    weather_url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units=imperial&exclude=current,minutely,hourly,alerts&appid={OPENWEATHER_API_KEY}"
+    response = requests.get(weather_url)
+    weather_data = response.json()
+    for day in weather_data['daily']:
+        forecast_date = datetime.fromtimestamp(day['dt'])
+        print(forecast_date.date())
+        print(day['temp']['min'])
+        print(day['temp']['max'])
+        print(day['clouds'])
+        print(day.get('rain', 0))
+else:
+    print("Using less accurate historical estimate for weather >=8 days")
+    date_day = date.strftime('%Y-%m-%d')
+    weather_url = f"https://api.openweathermap.org/data/3.0/onecall/day_summary?lat={lat}&lon={lon}&units=imperial&date={date_day}&appid={OPENWEATHER_API_KEY}"
+    response = requests.get(weather_url)
+    weather_data = response.json()
+    weather_data["temperature"]["min"]
+    weather_data["temperature"]["max"]
+    weather_data["cloud_cover"]["afternoon"]
+    weather_data["precipitation"]["total"]
+
+
+
+date = datetime(2022, 9, 29)
+date_day = date.strftime('%Y-%m-%d')
+weather_url = f"https://api.openweathermap.org/data/3.0/onecall/day_summary?lat={lat}&lon={lon}&units=imperial&date={date_day}&appid={OPENWEATHER_API_KEY}"
+response = requests.get(weather_url)
+weather_data = response.json()
+import pprint
+pprint.pprint(weather_data)
+
+date = datetime(2023, 9, 29)
+date_day = date.strftime('%Y-%m-%d')
+weather_url = f"https://api.openweathermap.org/data/3.0/onecall/day_summary?lat={lat}&lon={lon}&units=imperial&date={date_day}&appid={OPENWEATHER_API_KEY}"
+response = requests.get(weather_url)
+weather_data = response.json()
+import pprint
+pprint.pprint(weather_data)
+
+
+date = datetime(2024, 9, 28)
+date_day = date.strftime('%Y-%m-%d')
+weather_url = f"https://api.openweathermap.org/data/3.0/onecall/day_summary?lat={lat}&lon={lon}&units=imperial&date={date_day}&appid={OPENWEATHER_API_KEY}"
+response = requests.get(weather_url)
+weather_data = response.json()
+import pprint
+pprint.pprint(weather_data)
+
+date = datetime(2024, 9, 29)
+date_day = date.strftime('%Y-%m-%d')
+weather_url = f"https://api.openweathermap.org/data/3.0/onecall/day_summary?lat={lat}&lon={lon}&units=imperial&date={date_day}&appid={OPENWEATHER_API_KEY}"
+response = requests.get(weather_url)
+weather_data = response.json()
+import pprint
+pprint.pprint(weather_data)
+
+# Assuming you want the weather for a specific date, let's pick tomorrow
+target_date = datetime.now() + timedelta(days=1)
+
+# Loop through daily forecast and find matching date
+for day in weather_data['daily']:
+    forecast_date = datetime.fromtimestamp(day['dt'])
+    if forecast_date.date() == target_date.date():
+        temp_min = day['temp']['min']
+        temp_max = day['temp']['max']
+        rain = day.get('rain', 0)  # If there's no rain key, assume no rain
+
+        # Check the conditions
+        if temp_max > 60 and temp_min > 45 and rain == 0:
+            print("Weather looks good!")
+        else:
+            print("Weather conditions do not meet criteria.")
+
+
+import requests
+
+def get_drive_time(api_key, origin_lat, origin_lng, dest_lat, dest_lng):
+    # Define the API endpoint and parameters
+    url = "https://maps.googleapis.com/maps/api/distancematrix/json"
+    
+    # Specify the origin and destination
+    origin = f"{origin_lat},{origin_lng}"
+    destination = f"{dest_lat},{dest_lng}"
+    
+    # Set the parameters for the request
+    params = {
+        "origins": origin,
+        "destinations": destination,
+        "mode": "driving",  # You can change this to "walking", "bicycling", etc.
+        "key": api_key
+    }
+    
+    # Make the request
+    response = requests.get(url, params=params)
+    data = response.json()
+    
+    # Check if the request was successful
+    if data['status'] == 'OK':
+        # Extract the travel time from the response (in seconds)
+        duration = data['rows'][0]['elements'][0]['duration']['text']
+        return duration
+    else:
+        print("Error:", data['status'])
+        return None
+
+# Example usage
+api_key = "YOUR_GOOGLE_MAPS_API_KEY"  # Replace with your API key
+origin_lat = 37.7749  # San Francisco latitude
+origin_lng = -122.4194  # San Francisco longitude
+dest_lat = 34.0522  # Los Angeles latitude
+dest_lng = -118.2437  # Los Angeles longitude
+
+drive_time = get_drive_time(api_key, origin_lat, origin_lng, dest_lat, dest_lng)
+print(f"Estimated Drive Time: {drive_time}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+url ="https://www.recreation.gov/api/camps/campgrounds/232083"
+headers = {
+    'accept': 'application/json, text/plain, */*',
+    'User-Agent': random.choice(user_agents)
+}
+response = requests.get(url, headers=headers)
+
+ 'amenities': {'Campfire Rings': 'Campfire Rings',
+                              'Drinking Water': 'Drinking Water',
+                              'Firewood': 'Firewood',
+                              'Food Storage Locker': 'Food Storage Locker',
+                              'Grills': 'Grills',
+                              'Host': 'Host',
+                              'Picnic Area': 'Picnic Area',
+                              'Self Pay Station': 'Self Pay Station',
+                              'Showers': 'Showers',
+                              'Trash Collection': 'Trash Collection',
+                              'Vault Toilets': 'Vault Toilets',
+                              'Water Spigot': 'Water Spigot'},
+
+
+'notices': [{'active': True,
+                             'hide_on_permit': False,
+                             'notice_text': '<p><strong>Travel '
+                                            'Notice</strong>: Starting May '
+                                            '2024 and continuing through '
+                                            'September 2024, Ice House Road '
+                                            'will be undergoing repairs. There '
+                                            'will be traffic delays so plan '
+                                            'your camping trip '
+                                            'accordingly.</p>\n',
+                             'notice_type': 'warning'},
+
+
+
+with open("/Users/deaxman/Downloads/www.recreation_campground.gov.har", "r") as f:
+    jsn = json.load(f)
+
+
+for entry in jsn["log"]["entries"]:
+    text = entry.get("response", {}).get("content", {}).get("text", '')
+    if "Vault Toilets" in text:
+        print(entry["request"]["url"])
+
+
+
+
+
+
+
+
+
+
+import tiktoken
+import json
+import operator
+
+
+def format_campground_data_to_llm_input_string(campgrounds):
+    formatted_data = []
+    for campground in campgrounds:
+        campground_name = campground.get("name", "Unknown Campground")
+        activities = ", ".join(campground.get("activities", []))
+        amenities = ", ".join(campground.get("amenities", []))
+        # Ratings
+        rating_info = campground.get("rating", {})
+        average_rating = rating_info.get("average_rating", "N/A")
+        number_of_ratings = rating_info.get("number_of_ratings", 0)
+        # Cell coverage rating
+        cell_coverage = campground.get("cell_coverage_rating", {})
+        cell_coverage_rating = cell_coverage.get("average_rating", "N/A")
+        cell_coverage_reviews = cell_coverage.get("number_of_ratings", 0)
+        # Notices
+        notices = " ".join(campground.get("notices", []))
+        # Campsites Information
+        campsites = campground.get("campsites", [])
+        campground_info = campground.get("info", "None")
+        campsite_info = []
+        for campsite in campsites:
+            site_id = campsite.get("campsite_id", "N/A")
+            name = campsite.get("name", "Unnamed Site")
+            reservable = "Yes" if campsite.get("reservable") else "No"
+            accessible = "Yes" if campsite.get("accessible") else "No"
+            campsite_notices = " ".join(campsite.get("notices", []))
+            attributes = ", ".join([f"{key}: {val}" for key, val in campsite.get("attributes", [])])
+            campsite_info.append(f"Campsite {name} (ID: {site_id}) - Reservable: {reservable}, Accessible: {accessible}. Notices: {campsite_notices} Attributes: {attributes}")
+        campsite_str = "\n".join(campsite_info)
+        # Reviews
+        reviews = campground.get("reviews", [])
+        review_info = []
+        for review in reviews:
+            review_rating = review.get("rating", "N/A")
+            review_text = review.get("review", "").replace('\n', ' ')
+            upvote_score = review.get("upvote_score", 0)
+            campsite_name = review.get("campsite_name", "Unknown")
+            review_info.append(f"Rating: {review_rating} Upvotes: {upvote_score}, Campsite: {campsite_name} - {review_text}")
+        review_str = "\n".join(review_info)
+        # Final formatted entry
+        formatted_entry = (
+            f"Campground: {campground_name}\n"
+            f"{campground_info}"
+            f"Activities: {activities}\n"
+            f"Amenities: {amenities}\n"
+            f"Rating: {average_rating} from {number_of_ratings} reviews\n"
+            f"Cell Coverage Rating: {cell_coverage_rating} from {cell_coverage_reviews} reviews\n"
+            f"Notices: {notices}"
+            f"Reviews:\n{review_str}"
+            f"\n\nCampsites:\n{campsite_str}\n\n"
+        )
+        formatted_data.append(formatted_entry)
+    return "\n\n".join(formatted_data)
+
+
+class CampgroundData:
+    def __init__(self, jsonl_file):
+        """
+        Initialize the class by loading a JSONL file and storing it as a list of dictionaries.
+        """
+        self.campgrounds = []
+        with open(jsonl_file, 'r') as file:
+            for line in file:
+                self.campgrounds.append(json.loads(line))
+
+    def filter_by_rating(self, min_rating):
+        """
+        Returns campgrounds with an average rating above a specified minimum.
+        """
+        return [campground for campground in self.campgrounds if campground['rating']['average_rating'] > min_rating]
+
+    def filter_by_cell_coverage(self, min_coverage_rating, min_coverage_reviews=0):
+        """
+        Returns campgrounds with a cell coverage average rating above a certain number 
+        and with a minimum number of cell coverage reviews.
+        """
+        return [
+            campground for campground in self.campgrounds
+            if campground['cell_coverage_rating']['average_rating'] > min_coverage_rating
+            and campground['cell_coverage_rating']['number_of_ratings'] >= min_coverage_reviews
+        ]
+
+    def filter_by_activities(self, activities_list):
+        """
+        Returns campgrounds that offer all of the specified activities.
+        """
+        return [
+            campground for campground in self.campgrounds
+            if all(activity in campground['activities'] for activity in activities_list)
+        ]
+
+    def filter_by_amenities(self, amenities_list):
+        """
+        Returns campgrounds that offer all of the specified amenities.
+        """
+        return [
+            campground for campground in self.campgrounds
+            if all(amenity in campground['amenities'] for amenity in amenities_list)
+        ]
+
+    def filter_by_campsite_attribute(self, attribute_name, comparison='==', value=None, lower=None, upper=None):
+        """
+        Returns campgrounds where at least one campsite has a specific attribute based on a comparison condition.
+        
+        Parameters:
+        - attribute_name: Name of the attribute (e.g., 'accessible', 'driveway_length').
+        - comparison: Comparison operator (can be '==', '>', '<', '>=', '<=') to compare the value to the attribute value. Default is '=='.
+        - value: Value to compare the attribute against. Used with comparison operators.
+        - lower: Lower bound for the attribute value (used with range filters).
+        - upper: Upper bound for the attribute value (used with range filters).
+        """
+        ops = {
+            '==': operator.eq,
+            '>': operator.gt,
+            '<': operator.lt,
+            '>=': operator.ge,
+            '<=': operator.le
+        }
+
+        def attribute_matches(attr):
+            attr_name, attr_value = attr
+            if attr_name != attribute_name:
+                return False
+
+            if value is not None:
+                if comparison in ops:
+                    return ops[comparison](attr_value, value)
+
+            if lower is not None and upper is not None:
+                return lower <= attr_value <= upper
+            elif lower is not None:
+                return attr_value >= lower
+            elif upper is not None:
+                return attr_value <= upper
+
+            return False
+
+        filtered_campgrounds = []
+        
+        for campground in self.campgrounds:
+            # Filter campsites based on attribute matching
+            matching_campsites = [
+                campsite for campsite in campground['campsites']
+                if any(attribute_matches(attr) for attr in campsite['attributes'])
+            ]
+            
+            # Only keep campgrounds that have matching campsites
+            if matching_campsites:
+                campground_copy = campground.copy()  # Create a shallow copy of the campground
+                campground_copy['campsites'] = matching_campsites  # Replace campsites with filtered ones
+                filtered_campgrounds.append(campground_copy)
+        
+        return filtered_campgrounds
+
+
+    def filter_by_reviews(self, min_reviews):
+        """
+        Returns campgrounds that have a minimum number of total reviews.
+        """
+        return [
+            campground for campground in self.campgrounds
+            if campground['rating']['number_of_ratings'] >= min_reviews
+        ]
+
+    def sort_by_key(self, key, reverse=False):
+        """
+        Sorts the campgrounds based on a specific key (e.g., 'rating.average_rating', 'cell_coverage_rating.average_rating', etc.).
+        You can specify nested keys by using dot notation.
+        """
+        def get_nested_value(campground, key):
+            keys = key.split('.')
+            value = campground
+            for k in keys:
+                value = value.get(k, None)
+                if value is None:
+                    return None
+            return value
+
+        return sorted(self.campgrounds, key=lambda x: get_nested_value(x, key), reverse=reverse)
+
+    def filter_and_sort(self, filters=None, sort_key=None, reverse=False):
+        """
+        Allows filtering and sorting in a single method.
+        - Filters is a dictionary where the key is the filtering method name (as a string) and the value is the argument(s).
+        - Sort key is the key by which you want to sort the results.
+        """
+        results = self.campgrounds
+        if filters:
+            for method_name, args in filters.items():
+                method = getattr(self, method_name)
+                if isinstance(args, tuple):
+                    results = method(*args)
+                else:
+                    results = method(args)
+
+        if sort_key:
+            results = self.sort_by_key(sort_key, reverse=reverse)
+
+        return results
+
+    def haversine_distance(self, lat1, lon1, lat2, lon2):
+        """
+        Calculate the great-circle distance between two points
+        on the Earth using the Haversine formula.
+
+        Parameters:
+        lat1, lon1 -- latitude and longitude of the first point
+        lat2, lon2 -- latitude and longitude of the second point
+
+        Returns:
+        Distance in miles between the two points.
+        """
+        R = 3958.8  # Radius of the Earth in miles
+        dLat = math.radians(lat2 - lat1)
+        dLon = math.radians(lon2 - lon1)
+        lat1 = math.radians(lat1)
+        lat2 = math.radians(lat2)
+
+        a = math.sin(dLat/2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dLon/2) ** 2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+        return R * c
+
+    def get_campgrounds_within_radius(self, center_latitude, center_longitude, radius_miles):
+        """
+        Filter and return campgrounds within a given radius from a center point without overwriting self.campgrounds.
+
+        Parameters:
+        center_latitude -- latitude of the center point
+        center_longitude -- longitude of the center point
+        radius_miles -- radius in miles to search within
+
+        Returns:
+        A filtered list of campgrounds within the specified radius.
+        """
+        def is_within_radius(campground):
+            campground_lat = campground['latitude']
+            campground_lon = campground['longitude']
+            distance = self.haversine_distance(center_latitude, center_longitude, campground_lat, campground_lon)
+            return distance <= radius_miles
+
+        # Return a filtered list, without modifying self.campgrounds
+        return [campground for campground in self.campgrounds if is_within_radius(campground)]
+
+
+
+
+campground_data = CampgroundData('campgrounds.jsonl')
+
+# Get campgrounds with a rating higher than 4.0
+high_rated_campgrounds = campground_data.filter_by_rating(4.0)
+
+# Get campgrounds that offer both 'Hiking' and 'Fishing'
+campgrounds_with_activities = campground_data.filter_by_activities(['Hiking', 'Fishing'])
+
+accessible_campgrounds = campground_data.filter_by_campsite_attribute('accessible', '==', True)
+
+
+campgrounds_with_driveway_length = campground_data.filter_by_campsite_attribute('driveway_length', lower=20, upper=40)
+
+
+long_driveway_campgrounds = campground_data.filter_by_campsite_attribute('driveway_length', '>', 50)
+
+
+# Get campgrounds with more than 100 reviews, sorted by the average rating in descending order
+filtered_sorted_campgrounds = campground_data.filter_and_sort(
+    filters={'filter_by_campsite_attribute': ('accessible', '==', True)},
+    sort_key='rating.average_rating',
+    reverse=True
+)
+
+# Get campgrounds with accessible campsites, only returning the matching campsites
+accessible_campgrounds = campground_data.filter_by_campsite_attribute('accessible', '==', True)
+
+# Chained filtering with campsite attribute filtering and sorting by average rating
+filtered_sorted_campgrounds = campground_data.filter_and_sort(
+    filters={'filter_by_campsite_attribute': ('accessible', '==', True)},
+    sort_key='rating.average_rating',
+    reverse=True
+)
+
+campground_data = CampgroundData('campgrounds.jsonl')
+
+# Chain the filtering functions together
+filtered_campgrounds = (
+    campground_data
+    .get_campgrounds_within_radius(34.0522, -118.2437, 50)  # Find campgrounds within a 50-mile radius
+    .filter_by_rating(4)                                    # Filter by minimum rating
+    .filter_by_cell_coverage(3, 10)                         # Filter by cell coverage rating
+)
+
+# Optionally format the filtered campgrounds
+formatted_data = format_campground_data_to_llm_input_string(filtered_campgrounds)
+print(formatted_data)
+
+
+get_campgrounds_within_radius(self, center_latitude, center_longitude, radius_miles)
+
+
+# activities
+# amenities
+
+
+
+# cat /Users/deaxman/Downloads/recgov_converted_campgrounds_3784.jsonl | jq -r '.["campsites"][]["attributes"][] | "\(.[0]), \(.[1])"' | awk '
+#   BEGIN { FS=", "; OFS=", " }
+#   {
+#     key = $1;
+#     value = $2;
+#     if (value ~ /^[0-9]+$/) {
+#       type = "int";
+#     } else if (value ~ /^[0-9]+\.[0-9]+$/) {
+#       type = "float";
+#     } else if (value == "true" || value == "false") {
+#       type = "bool";
+#     } else {
+#       type = "string";
+#     }
+#     print key, type;
+#   }
+# ' | sort | uniq
+
+
+
+273342 [ec2-user@ip-172-31-29-78 ~]$ cat errors_file.txt 
+{"status_code": 400, "response": "{\"error\":\"the facility is disabled\"}\n", "function": "get_campground_general_info", "params": "10086072"}
+{"status_code": 400, "response": "{\"error\":\"the facility is disabled\"}\n", "function": "get_campground_general_info", "params": "10086072"}
+{"status_code": 400, "response": "{\"error\":\"the facility is disabled\"}\n", "function": "get_campground_general_info", "params": "10086072"}
+{"status_code": 404, "response": "{\"error\":\"Not Found\"}\n", "function": "get_campsite_info_notices", "params": "646128"}
+
+
+
+
+
