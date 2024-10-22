@@ -4,8 +4,7 @@ import json
 from datetime import datetime, timedelta
 import logging
 from typing import List
-from camply.containers import AvailableCampsite, SearchWindow
-from camply.search import SearchRecreationDotGov
+from camp_finder.availability.api_requester import get_available_campsites
 
 logging.basicConfig(format="%(asctime)s [%(levelname)8s]: %(message)s",
                     level=logging.INFO)
