@@ -10,17 +10,6 @@ logging.basicConfig(format="%(asctime)s [%(levelname)8s]: %(message)s",
                     level=logging.INFO)
 
 
-def get_available_campsites(campground_list, start_window_datetime, end_window_datetime, num_nights=1, days_of_the_week=None):
-    search_window = SearchWindow(start_date=start_window_datetime,
-                                 end_date=end_window_datetime)
-    camping_finder = SearchRecreationDotGov(search_window=search_window,
-                                            days_of_the_week=days_of_the_week,
-                                            campgrounds=campground_list,  # Glacier Ntl Park
-                                            nights=num_nights)
-    matches = camping_finder.get_matching_campsites(log=True, verbose=True, continuous=False)
-    return matches
-
-
 def convert_to_datetime(date_str, default_value):
     if isinstance(date_str, str):
         # Assuming the date string is in the format 'YYYY-MM-DD'
@@ -184,21 +173,14 @@ class CampgroundData:
         print("Checking availability of following campgrounds: " + "\n".join(campground_list))
         available_campsites = get_available_campsites(campground_list, start_window_datetime, end_window_datetime, num_nights=num_nights, days_of_the_week=days_of_the_week)
         print(f"Found {len(available_campsites)} available!")
-        campsite_to_booking_dict = {
-            str(campsite.campsite_id): {
-                key: campsite.__dict__[key] for key in ["booking_nights", "booking_date", "booking_end_date"]
-            }
-            for campsite in available_campsites
-        }
 
         available_filtered_campgrounds = []
         for campground in results:
             available_campsites_list = []
             for campsite in campground['campsites']:
-                if campsite["campsite_id"] in campsite_to_booking_dict:
-                    campsite["available"] = campsite_to_booking_dict[campsite["campsite_id"]]
+                if (campground["id"], campsite["campsite_id"]) in available_campsites:
+                    campsite["available"] = available_campsites[(campground["id"], campsite["campsite_id"])]
                     available_campsites_list.append(campsite)
-
             campground['campsites'] = available_campsites_list
             if campground['campsites']:
                 available_filtered_campgrounds.append(campground)

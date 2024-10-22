@@ -18,11 +18,11 @@ def encode_params(params):
 
 
 def find_matching_date_periods(start_date, end_date, num_nights, days_of_the_week, all_campsite_availabilities):
-  campsite_available_dates = {}
-  for k, v in all_campsite_availabilities.items():
-      available_dates = [date for date, availability in v.items() if availability == "Available"]
-      if available_dates:
-        campsite_available_dates[k] = available_dates
+    campsite_available_dates = {}
+    for k, v in all_campsite_availabilities.items():
+        available_dates = [date for date, availability in v.items() if availability == "Available"]
+        if available_dates:
+            campsite_available_dates[k] = available_dates
     # Prepare a dictionary to store the final bookings
     bookings = {}
     # Iterate over each campsite and its available dates
@@ -147,5 +147,5 @@ def get_available_campsites(campground_list, start_window_datetime, end_window_d
 # print(all_campsite_availabilities)
 
 
-# all_bookings_matching_search = find_matching_date_periods(start_date, end_date, num_nights, days_of_the_week, all_campsite_availabilities)
+# all_bookings_matching_search = find_matching_date_periods(start, end, num_nights, days_of_the_week, all_campsite_availabilities)
 

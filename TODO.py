@@ -2,20 +2,16 @@
 
 
 
-make campsite to campground map and reverse
+try running the container as is
+try hosting normally
+
+create the static webpage on laptop
 
 
-add in AVAILABLE filter given date spec (they give the date spec and WE pass list of campgrounds/sites and it filters to only return the available ones)
-
-make the project repo
-add to github (check for keys)
-add docker
-test grabbing with curl
+run docker on laptop and test out the site!!
 
 
-
-
-given campsite/campground list, register for them for a date, with an email (utils.py)
+put it in the cloud
 
 
 
@@ -43,5 +39,3 @@ add all of the possibilities to structured output for searching
 
 
 
-
-python3.9 convert_and_process_raw_data.py /Users/deaxman/Downloads/all_recdatapull_files/all_data_backup2_GOOD_1188.jsonl /Users/deaxman/Downloads/recgov_all_converted_100824.jsonl /Users/deaxman/Downloads/recgov_camp_id_maps_100824.json
