@@ -1,7 +1,6 @@
 import requests
 from datetime import datetime
 from collections import defaultdict
-from dateutil.relativedelta import relativedelta
 import random
 import asyncio
 import aiohttp
