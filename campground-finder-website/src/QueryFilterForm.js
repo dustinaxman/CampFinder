@@ -1,82 +1,119 @@
 import React, { useState } from 'react';
-import { TextField, Button, Grid, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import {
+  TextField,
+  Button,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Checkbox,
+  ListItemText,
+  Box,
+} from '@mui/material';
 
-const QueryFilterForm = ({ query, setQuery, errors }) => {
-  const [currentCondition, setCurrentCondition] = useState({});
-  const [currentLogicalGroup, setCurrentLogicalGroup] = useState('AND');
+// Allowed fields and their corresponding value types
+const FILTER_OPTIONS = {
+  "rating.average_rating": ["gt", "ge", "lt", "le", "eq", "between"],
+  "campsites.accessible": ["eq"],
+  "amenities": ["contains"],
+  "activities": ["contains_any"],
+  "campsites.attributes": ["contains"],
+};
 
-  const handleAddCondition = () => {
-    if (!currentCondition || !Object.keys(currentCondition).length) return;
+const AMENITIES_OPTIONS = ["accessible boat dock", "campfire rings", "drinking water", "restrooms"];
+const ACTIVITIES_OPTIONS = ["hiking", "fishing", "swimming", "kayaking"];
+const ATTRIBUTES_OPTIONS = [
+  { label: "campfire allowed", type: "boolean" },
+  { label: "driveway length", type: "number" },
+];
 
-    setQuery((prevQuery) => ({
-      ...prevQuery,
-      filters: {
-        ...prevQuery.filters,
-        [currentLogicalGroup]: [...prevQuery.filters[currentLogicalGroup], currentCondition],
-      },
-    }));
+const QueryFilterForm = ({ onFilterSubmit }) => {
+  const [filters, setFilters] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState({ field: "", operator: "", value: "" });
 
-    setCurrentCondition({});
+  const handleAddFilter = () => {
+    setFilters((prevFilters) => [...prevFilters, currentFilter]);
+    setCurrentFilter({ field: "", operator: "", value: "" });
   };
 
-  const handleConditionChange = (field, value) => {
-    setCurrentCondition({ [field]: value });
+  const handleFieldChange = (field) => {
+    setCurrentFilter((prev) => ({ ...prev, field, operator: "", value: "" }));
+  };
+
+  const handleOperatorChange = (operator) => {
+    setCurrentFilter((prev) => ({ ...prev, operator }));
+  };
+
+  const handleValueChange = (value) => {
+    setCurrentFilter((prev) => ({ ...prev, value }));
+  };
+
+  const renderValueInput = () => {
+    if (!currentFilter.field || !currentFilter.operator) return null;
+
+    const fieldOptions = currentFilter.field === "amenities" ? AMENITIES_OPTIONS
+      : currentFilter.field === "activities" ? ACTIVITIES_OPTIONS
+      : ATTRIBUTES_OPTIONS.find((attr) => attr.label === currentFilter.field)?.type === "boolean"
+      ? (
+          <Checkbox
+            checked={currentFilter.value === true}
+            onChange={(e) => handleValueChange(e.target.checked)}
+          />
+        )
+      : <TextField onChange={(e) => handleValueChange(e.target.value)} />;
+
+    return (
+      <FormControl>
+        {currentFilter.field === "amenities" || currentFilter.field === "activities" ? (
+          <Select
+            multiple
+            value={currentFilter.value || []}
+            onChange={(e) => handleValueChange(e.target.value)}
+            renderValue={(selected) => selected.join(", ")}
+          >
+            {(currentFilter.field === "amenities" ? AMENITIES_OPTIONS : ACTIVITIES_OPTIONS).map((option) => (
+              <MenuItem key={option} value={option}>
+                <Checkbox checked={currentFilter.value?.includes(option) || false} />
+                <ListItemText primary={option} />
+              </MenuItem>
+            ))}
+          </Select>
+        ) : fieldOptions}
+      </FormControl>
+    );
   };
 
   return (
-    <Grid container spacing={3}>
-      <Grid item xs={12}>
-        <FormControl fullWidth>
-          <InputLabel>Logical Group</InputLabel>
+    <Box>
+      <FormControl>
+        <InputLabel>Field</InputLabel>
+        <Select value={currentFilter.field} onChange={(e) => handleFieldChange(e.target.value)}>
+          {Object.keys(FILTER_OPTIONS).map((field) => (
+            <MenuItem key={field} value={field}>
+              {field}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      {currentFilter.field && (
+        <FormControl>
+          <InputLabel>Operator</InputLabel>
           <Select
-            value={currentLogicalGroup}
-            onChange={(e) => setCurrentLogicalGroup(e.target.value)}
+            value={currentFilter.operator}
+            onChange={(e) => handleOperatorChange(e.target.value)}
           >
-            <MenuItem value="AND">AND</MenuItem>
-            <MenuItem value="OR">OR</MenuItem>
+            {FILTER_OPTIONS[currentFilter.field].map((op) => (
+              <MenuItem key={op} value={op}>
+                {op}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
-      </Grid>
-
-      <Grid item xs={12} md={6}>
-        <TextField
-          label="Condition Field (e.g., rating.average_rating)"
-          fullWidth
-          onChange={(e) => handleConditionChange('field', e.target.value)}
-        />
-      </Grid>
-
-      <Grid item xs={12} md={6}>
-        <TextField
-          label="Condition Value (e.g., gt: 4.0)"
-          fullWidth
-          onChange={(e) => handleConditionChange('value', e.target.value)}
-        />
-      </Grid>
-
-      <Grid item xs={12}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleAddCondition}
-        >
-          Add Condition
-        </Button>
-      </Grid>
-
-      {/* Display errors */}
-      {errors && (
-        <Grid item xs={12}>
-          {Object.entries(errors).map(([key, value]) => (
-            <p key={key} style={{ color: 'red' }}>
-              {key}: {value}
-            </p>
-          ))}
-        </Grid>
       )}
-    </Grid>
+      {renderValueInput()}
+      <Button onClick={handleAddFilter}>Add Filter</Button>
+      <Button onClick={() => onFilterSubmit(filters)}>Submit Query</Button>
+    </Box>
   );
 };
 
