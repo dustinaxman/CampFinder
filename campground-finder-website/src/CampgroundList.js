@@ -1,71 +1,56 @@
 import React, { useState } from 'react';
-import { Accordion, AccordionSummary, AccordionDetails, Typography, Grid, List, ListItem } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, Tab, Tabs, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const CampgroundList = ({ campgrounds }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [selectedCampground, setSelectedCampground] = useState(null);
 
-  const handleAccordionChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : false);
+  const handleCampgroundClick = (campground) => {
+    setSelectedCampground(campground);
   };
 
-  // Function to format available dates
-  const formatAvailableDates = (datesArray) => {
-    if (!datesArray || datesArray.length === 0) return "No availability";
-    return datesArray.map(([start, end], index) => (
-      <div key={index}>
-        From: {new Date(start).toLocaleDateString()} To: {new Date(end).toLocaleDateString()}
-      </div>
-    ));
+  const handleClose = () => {
+    setSelectedCampground(null);
   };
 
   return (
-    <div>
-      {campgrounds.map((campground, index) => (
-        <Accordion 
-          expanded={expanded === index} 
-          onChange={handleAccordionChange(index)} 
-          key={campground.id}
-        >
+    <>
+      {campgrounds.map((campground) => (
+        <Accordion key={campground.id}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">
-              {campground.name} (ID: {campground.id}) {/* Displaying campground ID */}
-            </Typography>
+            <Typography variant="h6">{campground.name}</Typography>
             <Typography variant="subtitle1" style={{ marginLeft: 'auto' }}>
-              Rating: {campground.rating?.average_rating || 'N/A'} ({campground.rating?.number_of_ratings || '0'} reviews) {/* Displaying average rating */}
+              Rating: {campground.rating?.average_rating || 'N/A'} (
+              {campground.rating?.number_of_ratings || '0'} reviews)
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Typography variant="body1">
-                  Activities: {campground.activities.join(', ')}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body1">
-                  Amenities: {campground.amenities.join(', ')}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="h6">Campsites:</Typography>
-                <List>
-                  {campground.campsites.map((campsite) => (
-                    <ListItem key={campsite.campsite_id}>
-                      <Typography variant="body2">
-                        {campsite.name} (ID: {campsite.campsite_id}) - Available: {formatAvailableDates(campsite.available)}
-                      </Typography>
-                    </ListItem>
-                  ))}
-                </List>
-              </Grid>
-            </Grid>
+            <Typography variant="body1">{campground.info}</Typography>
+            <Button variant="outlined" onClick={() => handleCampgroundClick(campground)}>
+              View Campsites
+            </Button>
           </AccordionDetails>
         </Accordion>
       ))}
-    </div>
+
+      {selectedCampground && (
+        <Dialog open onClose={handleClose} fullWidth maxWidth="md">
+          <DialogTitle>{selectedCampground.name}</DialogTitle>
+          <DialogContent>
+            <Tabs>
+              {selectedCampground.campsites.map((campsite) => (
+                <Tab key={campsite.campsite_id} label={campsite.name}>
+                  <Typography variant="body1">
+                    Attributes: {JSON.stringify(campsite.attributes)}
+                  </Typography>
+                </Tab>
+              ))}
+            </Tabs>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 };
 
 export default CampgroundList;
-

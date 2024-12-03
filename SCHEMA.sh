@@ -105,6 +105,17 @@ python3.9 convert_and_process_raw_data.py /Users/deaxman/Downloads/all_data_back
       "latitude": float,              # Latitude of the campsite
       "longitude": float,             # Longitude of the campsite
       "name": "string",               # Name/number of the campsite
+      "available": [ # list of booking periods matching specifications
+        ["string"] # list of isodate strings that specifies this booking period
+      ],
+      "weathers": [ # list of weather for each available booking period (this list will be same length as campground["available"]
+        {"min_temp": float,
+         "max_temp": float,
+         "cloud_cover": float,
+         "rain_amount_mm": float,
+         "humidity": float
+        }
+      ],
       "reservable": bool,             # Whether the campsite is reservable
       "notices": [                    # List of notices specific to the campsite
         "string"
@@ -120,7 +131,13 @@ python3.9 convert_and_process_raw_data.py /Users/deaxman/Downloads/all_data_back
 }
 
 
-
+{
+    #                     "min_temp": day['temp']['min'],
+    #                     "max_temp": day['temp']['max'],
+    #                     "cloud_cover": day['clouds'],
+    #                     "rain_amount_mm": day.get('rain', 0),
+    #                     "humidity": day["humidity"]
+    #                 }
 
 
 {

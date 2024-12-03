@@ -1,25 +1,74 @@
 import React from 'react';
-import { List, ListItem, ListItemText, Typography } from '@mui/material';
+import { Typography, Grid, Paper, List, ListItem, ListItemText } from '@mui/material';
 
 function Campground({ campground }) {
   return (
-    <div>
-      <Typography variant="subtitle1">Activities: {campground.activities.join(', ')}</Typography>
-      <Typography variant="subtitle1">Amenities: {campground.amenities.join(', ')}</Typography>
-
-      <List>
+    <Paper elevation={3} style={{ padding: '20px', marginBottom: '20px' }}>
+      <Typography variant="h5" gutterBottom>
+        {campground.name}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        ID: {campground.id}
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        Average Rating: {campground.rating?.average_rating || 'N/A'} ({campground.rating?.number_of_ratings || 0} reviews)
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        Activities: {campground.activities.join(', ')}
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        Amenities: {campground.amenities.join(', ')}
+      </Typography>
+      <Grid container spacing={2}>
         {campground.campsites.map((campsite) => (
-          <ListItem key={campsite.campsite_id}>
-            <ListItemText
-              primary={`${campsite.name} - Available: ${campsite.available.booking_date}`}
-              secondary={`Details: ${campsite.attributes.map(([key, value]) => `${key}: ${value}`).join(', ')}`}
-            />
-          </ListItem>
+          <Grid item xs={12} md={6} key={campsite.campsite_id}>
+            <Paper elevation={2} style={{ padding: '10px' }}>
+              <Typography variant="h6" gutterBottom>
+                Campsite: {campsite.name} (ID: {campsite.campsite_id})
+              </Typography>
+              <Typography variant="body2" gutterBottom>
+                Accessible: {campsite.accessible ? 'Yes' : 'No'}
+              </Typography>
+              <Typography variant="body2" gutterBottom>
+                Attributes:
+              </Typography>
+              <List dense>
+                {campsite.attributes.map(([key, value]) => (
+                  <ListItem key={key}>
+                    <ListItemText primary={`${key}: ${value}`} />
+                  </ListItem>
+                ))}
+              </List>
+              <Typography variant="body2" gutterBottom>
+                Availability:
+              </Typography>
+              <List dense>
+                {campsite.available.map(([start, end], index) => (
+                  <ListItem key={index}>
+                    <ListItemText
+                      primary={`From: ${new Date(start).toLocaleDateString()} To: ${new Date(end).toLocaleDateString()}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+              <Typography variant="body2" gutterBottom>
+                Weather:
+              </Typography>
+              <List dense>
+                {campsite.weathers.map((weather, index) => (
+                  <ListItem key={index}>
+                    <ListItemText
+                      primary={`Min Temp: ${weather.min_temp}°C, Max Temp: ${weather.max_temp}°C, Humidity: ${weather.humidity}%, Rain: ${weather.rain_amount_mm}mm`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          </Grid>
         ))}
-      </List>
-    </div>
+      </Grid>
+    </Paper>
   );
 }
 
 export default Campground;
-
