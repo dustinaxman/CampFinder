@@ -2179,4 +2179,116 @@ get_campgrounds_within_radius(self, center_latitude, center_longitude, radius_mi
 
 
 
+import requests
+from datetime import datetime, timedelta
+from collections import defaultdict
+from dateutil.relativedelta import relativedelta
+
+def find_matching_date_periods(start_date, end_date, num_nights, days_of_the_week, all_campsite_availabilities):
+  campsite_available_dates = {}
+  for k, v in all_campsite_availabilities.items():
+      available_dates = [date for date, availability in v.items() if availability == "Available"]
+      if available_dates:
+        campsite_available_dates[k] = available_dates
+    # Prepare a dictionary to store the final bookings
+    bookings = {}
+    # Iterate over each campsite and its available dates
+    for campsite, available_dates in campsite_available_dates.items():
+        # Convert available dates to datetime objects for comparison
+        available_dates = [datetime.fromisoformat(date.replace("Z", "")) for date in available_dates]
+        # Filter dates that are within the start and end date range
+        filtered_dates = [date for date in available_dates if start_date <= date <= end_date]
+        # Filter dates based on the days of the week condition
+        filtered_dates = [date for date in filtered_dates if date.weekday() in days_of_the_week]
+        # Sort the dates just to be sure
+        filtered_dates.sort()
+        # Now group dates into sets of consecutive nights
+        campsite_bookings = []
+        for i in range(len(filtered_dates) - num_nights + 1):
+            group = filtered_dates[i:i + num_nights]
+            # Check if the dates in this group are consecutive
+            if all((group[j+1] - group[j]).days == 1 for j in range(num_nights - 1)):
+                # Add the group of dates to the bookings for this campsite
+                campsite_bookings.append(group)
+        # Convert datetime objects back to ISO format strings
+        campsite_bookings = [[date.isoformat() + "Z" for date in group] for group in campsite_bookings]
+        # Add the bookings to the final result if any valid groups were found
+        if campsite_bookings:
+            bookings[campsite] = campsite_bookings
+    return bookings
+
+def get_calls_for_campgrounds_in_date_range(campground_list, start_date, end_date):
+    base_url = "https://www.recreation.gov/api/camps/availability/campground/234541/month"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Referer": "https://www.recreation.gov"
+    }
+    call_info_list = []
+    for campground in campground_list:
+      current_date = datetime(start_date.year, start_date.month, 1)
+      while current_date <= end_date:
+          formatted_month = current_date.strftime("%Y-%m-01T00:00:00.000Z")
+          query_params = {"start_date": formatted_month}
+          #TODO: randomly select a header from a set of headers
+          call_info = dict(campground=campground, url=f"https://www.recreation.gov/api/camps/availability/campground/{campground}/month", headers=headers, params=query_params, timeout=30)
+          call_info_list.append(call_info)
+          current_date += relativedelta(months=1)
+    return call_info_list
+
+
+def make_request(call_info):
+  all_campsite_availabilities = defaultdict(dict)
+  #TODO: make a safe and well constructed call like this but safer, assume this function will be called in parallel
+  print("start request")
+  response = requests.get(call_info["url"], headers=call_info["headers"], params=call_info["params"], timeout=call_info["timeout"])
+  print("finshed request")
+  campsites = response.json().get("campsites", {})
+  for campsite_id, campsite_data in campsites.items():
+    all_campsite_availabilities[(call_info["campground"], campsite_id)].update(campsite_data.get("availabilities", {}))
+  return all_campsite_availabilities
+
+
+def call_and_merge(call_info_list):
+  #TODO: call make_request on all of the call_info_list in parallel very safely, 
+  # give the ability to have a parameter that has a request rate per minute REQUEST_RATE_PER_MINUTE and even if called in parallel, the requests won't be sent faster than that
+  # something like the below but in parallel (within the rate limit)
+  # the order of the rejoin doesn't matter
+  # completely change this function to make the requests correctly as specified above
+  all_campsite_availabilities = defaultdict(dict)
+  for call_info in call_info_list:
+    for (campground_id, campsite_id), date_availability_dict in make_request(call_info).items():
+      all_campsite_availabilities[(campground_id, campsite_id)].update(date_availability_dict)
+  return all_campsite_availabilities
+
+
+#I want to be able to do something like this:
+
+campground_list = [234073, 234541]
+start_date = datetime(2024, 10, 3)
+end_date = datetime(2024, 12 , 10)
+
+call_info_list = get_calls_for_campgrounds_in_date_range(campground_list, start_date, end_date)
+all_campsite_availabilities = call_and_merge(call_info_list)
+all_bookings_matching_search = find_matching_date_periods(start_date, end_date, num_nights, days_of_the_week, all_campsite_availabilities)
+
+
+def get_available_campsites(campground_list, start_window_datetime, end_window_datetime, num_nights=1, days_of_the_week=None):
+  call_info_list = get_calls_for_campgrounds_in_date_range(campground_list, start_window_datetime, end_window_datetime)
+  all_campsite_availabilities = call_and_merge(call_info_list)
+  all_bookings_matching_search = find_matching_date_periods(start_window_datetime, end_window_datetime, num_nights, days_of_the_week, all_campsite_availabilities)
+  return all_bookings_matching_search
+
+
+
+
+
+
+
+
+
+
+
+
+
 

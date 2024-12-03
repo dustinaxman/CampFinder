@@ -4,8 +4,10 @@ from datetime import datetime
 import json
 from camp_finder.utils.s3_utils import download_s3_file
 from pathlib import Path
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Path to your campground data file (replace with the actual file path)
 S3_KEY = "all_campground_info/recgov_all_converted_100824.jsonl"

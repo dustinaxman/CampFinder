@@ -1,10 +1,14 @@
 import operator
 import math
 import json
+import os
 from datetime import datetime, timedelta
 import logging
+from botocore.exceptions import ClientError
 from typing import List
 from camp_finder.availability.api_requester import get_available_campsites
+from camp_finder.utils.weather_utils import get_weather_for_future_date
+import boto3
 
 logging.basicConfig(format="%(asctime)s [%(levelname)8s]: %(message)s",
                     level=logging.INFO)
@@ -45,6 +49,31 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     return distance
 
 
+
+# aws ssm put-parameter \
+#     --name "OPENWEATHER_API_KEY" \
+#     --value "your-api-key-here" \
+#     --type "SecureString" \
+#     --region us-east-1
+
+def get_parameter_from_ssm(parameter_name, region="us-east-1"):
+    ssm = boto3.client('ssm', region_name=region)
+    try:
+        response = ssm.get_parameter(Name=parameter_name, WithDecryption=True)
+        return response['Parameter']['Value']
+    except ClientError as e:
+        logging.info(f"Error fetching parameter {parameter_name}: {e}")
+        return None
+
+if not os.environ.get("OPENWEATHER_API_KEY"):
+    openweather_api_key = get_parameter_from_ssm("OPENWEATHER_API_KEY")
+    if openweather_api_key:
+        os.environ["OPENWEATHER_API_KEY"] = openweather_api_key
+
+OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY")
+
+
+
 class CampgroundData:
     def __init__(self, jsonl_file):
         self.campgrounds = []
@@ -55,32 +84,62 @@ class CampgroundData:
     def _apply_condition(self, value, condition):
         """Helper function to apply filtering conditions."""
         for op, op_val in condition.items():
-            if op == 'eq' and value != op_val:
-                return False
-            if op == 'gt' and value <= op_val:
-                return False
-            if op == 'lt' and value >= op_val:
-                return False
-            if op == 'ge' and value < op_val:
-                return False
-            if op == 'le' and value > op_val:
-                return False
-            if op == 'between' and not (op_val[0] <= value <= op_val[1]):
+            try:
+                if op == 'eq' and value != op_val:
+                    return False
+                if op == 'gt' and value <= op_val:
+                    return False
+                if op == 'lt' and value >= op_val:
+                    return False
+                if op == 'ge' and value < op_val:
+                    return False
+                if op == 'le' and value > op_val:
+                    return False
+                if op == 'between' and not (op_val[0] <= value <= op_val[1]):
+                    return False
+            except TypeError:
                 return False
         return True
 
-    def _filter_campsites(self, campsites, attribute_conditions):
+    def _filter_campsites(self, campsite, conditions):
         """Helper function to filter campsites by attributes."""
-        filtered_campsites = []
-        for campsite in campsites:
-            # Check each attribute condition
-            match = all(
-                self._apply_condition(next((val for (attr_name, val) in campsite['attributes'] if attr_name == key), None), condition)
-                for key, condition in attribute_conditions.items()
-            )
-            if match:
-                filtered_campsites.append(campsite)
-        return filtered_campsites
+        value = campsite
+        for key_path, cond in conditions:
+            for k in key_path.split('.')[1:]:
+                value = value[k]
+
+            if isinstance(value, list) and 'contains' in cond:
+                # add the "next" thing to check if it contains
+                # (if the cond[contains is not a dict, otherwise find the key
+                # in that dict and check the value (condition) with the built
+                # in checker!
+                if isinstance(cond["contains"], dict):
+                    #all of these conditions should match
+                    match = all(
+                        self._apply_condition(
+                            next((val for (attr_name, val) in value if attr_name == key), None),
+                            condition)
+                        for key, condition in cond["contains"].items()
+                    )
+                elif isinstance(cond["contains"], list):
+                    #all of these should be values in the attributes
+                    list_of_attr_keys = set([attrb[0] for attrb in value])
+                    match = all(item in list_of_attr_keys for item in cond['contains'])
+                else:
+                    #hopefully a scalar
+                    list_of_attr_keys = set([attrb[0] for attrb in value])
+                    match = (cond['contains'] in list_of_attr_keys)
+                # if not all(item in value for item in cond['contains']):
+                #     next((val for (attr_name, val) in campsite['attributes'] if attr_name == key)
+                #     match = False
+            else:
+                # normal value condition check
+                match = self._apply_condition(value, cond)
+            if not match:
+                return False
+
+
+
 
     def _filter_campgrounds(self, campground, filter_conditions):
         """Helper to filter campgrounds based on conditions."""
@@ -120,6 +179,27 @@ class CampgroundData:
                 return None
         return obj
 
+
+
+
+    # # 37.765195,-122.454539 #301 carl
+    # origin_lat = 37.765195
+    # origin_lng = -122.454539
+    # date = datetime(2024, 9, 22)
+
+    def passes_weather_filter(self, weather, conds):
+        return all([self._apply_condition(weather[k], condition) for k, condition in conds.items()])
+
+    def filter_campsite_available_dates_by_weather(self, campsites, conds):
+        [date_group for date_group, weather in zip(campsites["available"], campsites["weathers"]) if self.passes_weather_filter(weather, conds)]
+    # {
+    #                     "min_temp": day['temp']['min'],
+    #                     "max_temp": day['temp']['max'],
+    #                     "cloud_cover": day['clouds'],
+    #                     "rain_amount_mm": day.get('rain', 0),
+    #                     "humidity": day["humidity"]
+    #                 }
+
     def filter_and_sort_campgrounds(self, filter_sort_dict):
         filters = filter_sort_dict.get("filters", {})
         sort = filter_sort_dict.get("sort", {})
@@ -134,19 +214,20 @@ class CampgroundData:
 
         and_conditions = filters.get('AND', [])
         or_conditions = filters.get('OR', [])
+        weather_conditions = filters.get('weather', {})
 
         results = []
         for campground in self.campgrounds:
 
             # AND conditions
             if and_conditions:
-                match = all(self._filter_campgrounds(campground, cond) for cond in and_conditions)
+                match = all(self._filter_campgrounds(campground, cond) for cond in and_conditions if not any("campsites" in cond_path for cond_path in cond))
                 if not match:
                     continue
 
             # OR conditions
             if or_conditions:
-                match = any(self._filter_campgrounds(campground, cond) for cond in or_conditions)
+                match = any(self._filter_campgrounds(campground, cond) for cond in or_conditions if not any("campsites" in cond_path for cond_path in cond))
                 if not match:
                     continue
 
@@ -159,9 +240,19 @@ class CampgroundData:
                     continue  # Skip campgrounds outside the radius
 
             # Campsite filtering
-            campsite_filters = [cond for cond in and_conditions if 'campsites' in cond] + [cond for cond in or_conditions if 'campsites' in cond]
+            campsite_filters = [cond for cond in and_conditions if 'campsites' in cond] + [cond for cond in or_conditions if all("campsites" in cond_path for cond_path in cond)]
             if campsite_filters:
-                campground['campsites'] = self._filter_campsites(campground['campsites'], campsite_filters)
+                temp_campsites = []
+                for campsite in campground['campsites']:
+                    match = all(self._filter_campsites(campsite, cond) for cond in and_conditions if all("campsites" in cond_path for cond_path in cond))
+                    if not match:
+                        continue
+                    match = any(
+                        self._filter_campsites(campsite, cond) for cond in or_conditions if "campsites" in cond)
+                    if not match:
+                        continue
+                    temp_campsites.append(campsite)
+                campground['campsites'] = temp_campsites
                 if not campground['campsites']:
                     continue  # Skip campgrounds with no matching campsites
 
@@ -172,18 +263,24 @@ class CampgroundData:
 
         print("Checking availability of following campgrounds: " + "\n".join(campground_list))
         available_campsites = get_available_campsites(campground_list, start_window_datetime, end_window_datetime, num_nights=num_nights, days_of_the_week=days_of_the_week)
-        print(f"Found {len(available_campsites)} available!")
 
         available_filtered_campgrounds = []
+        weather_filter = next((cond.get("weather") for cond in and_conditions if "weather" in cond), None)
         for campground in results:
             available_campsites_list = []
             for campsite in campground['campsites']:
                 if (campground["id"], campsite["campsite_id"]) in available_campsites:
                     campsite["available"] = available_campsites[(campground["id"], campsite["campsite_id"])]
+                    campsite["weathers"] = [get_weather_for_future_date(date_group[0], campsite["latitude"], campsite["longitude"], OPENWEATHER_API_KEY) for date_group in campsite["available"]]
+                    self.filter_campsite_available_dates_by_weather(campsite, weather_conditions)
+                    if not campsite["available"]:
+                        campsite.pop('available', None)
+                        continue
                     available_campsites_list.append(campsite)
             campground['campsites'] = available_campsites_list
             if campground['campsites']:
                 available_filtered_campgrounds.append(campground)
+
 
         # Sorting
         if sort:
