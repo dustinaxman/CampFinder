@@ -38,6 +38,7 @@ const ATTRIBUTES_OPTIONS = [
 const WEATHER_FIELDS = ["min_temp", "max_temp", "rain_amount_mm", "humidity"];
 const WEATHER_OPERATORS = ["gt", "ge", "lt", "le", "eq", "between"];
 
+
 const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
   const [filters, setFilters] = useState(isWeatherFilter ? {} : []);
   const [currentFilter, setCurrentFilter] = useState({
@@ -51,6 +52,16 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
   const handleAddFilter = () => {
     if (!currentFilter.field || !currentFilter.operator || currentFilter.value === "") {
       alert("Please complete all filter fields before adding.");
+      return;
+    }
+
+    if (
+      currentFilter.nestedOperator === "between" &&
+      (!Array.isArray(currentFilter.nestedValue) ||
+        currentFilter.nestedValue.length !== 2 ||
+        currentFilter.nestedValue.some((v) => isNaN(v)))
+    ) {
+      alert("Please enter two valid values for 'between' separated by a comma.");
       return;
     }
 
@@ -122,11 +133,22 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
   };
 
   const handleNestedOperatorChange = (nestedOperator) => {
-    setCurrentFilter((prev) => ({ ...prev, nestedOperator }));
+    setCurrentFilter((prev) => ({
+      ...prev,
+      nestedOperator,
+      nestedValue: nestedOperator === "between" ? [] : "",
+    }));
   };
 
-  const handleNestedValueChange = (nestedValue) => {
-    setCurrentFilter((prev) => ({ ...prev, nestedValue }));
+  const handleNestedValueChange = (nestedValue, index = null) => {
+    setCurrentFilter((prev) => {
+      if (prev.nestedOperator === "between" && index !== null) {
+        const newValues = [...(prev.nestedValue || [])];
+        newValues[index] = nestedValue;
+        return { ...prev, nestedValue: newValues };
+      }
+      return { ...prev, nestedValue };
+    });
   };
 
   const renderNestedValueInput = () => {
@@ -135,6 +157,30 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
     const attributeType = ATTRIBUTES_OPTIONS.find(
       (attr) => attr.label === currentFilter.value
     )?.type;
+
+    if (currentFilter.nestedOperator === "between") {
+      return (
+        <Box>
+          <TextField
+            type="number"
+            placeholder="Start"
+            value={currentFilter.nestedValue?.[0] || ""}
+            onChange={(e) =>
+              handleNestedValueChange(parseFloat(e.target.value), 0)
+            }
+            style={{ marginRight: "8px" }}
+          />
+          <TextField
+            type="number"
+            placeholder="End"
+            value={currentFilter.nestedValue?.[1] || ""}
+            onChange={(e) =>
+              handleNestedValueChange(parseFloat(e.target.value), 1)
+            }
+          />
+        </Box>
+      );
+    }
 
     if (attributeType === "boolean") {
       return (
