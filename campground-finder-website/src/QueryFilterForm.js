@@ -11,6 +11,8 @@ import {
   IconButton,
   Checkbox,
   ListItemText,
+  Grid,
+  Paper,
 } from "@mui/material";
 import { Delete as DeleteIcon } from "@mui/icons-material";
 
@@ -18,8 +20,8 @@ const FILTER_OPTIONS = {
   "rating.average_rating": ["gt", "ge", "lt", "le", "eq", "between"],
   "rating.number_of_ratings": ["gt", "ge", "lt", "le", "eq", "between"],
   "campsites.accessible": ["eq"],
-  "amenities": ["contains", "contains_any"],
-  "activities": ["contains", "contains_any"],
+  amenities: ["contains", "contains_any"],
+  activities: ["contains", "contains_any"],
   "campsites.attributes": ["contains"],
 };
 
@@ -38,8 +40,7 @@ const ATTRIBUTES_OPTIONS = [
 const WEATHER_FIELDS = ["min_temp", "max_temp", "rain_amount_mm", "humidity"];
 const WEATHER_OPERATORS = ["gt", "ge", "lt", "le", "eq", "between"];
 
-
-const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
+const QueryFilterForm = ({ isWeatherFilter, onFilterUpdate }) => {
   const [filters, setFilters] = useState(isWeatherFilter ? {} : []);
   const [currentFilter, setCurrentFilter] = useState({
     field: "",
@@ -50,7 +51,11 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
   });
 
   const handleAddFilter = () => {
-    if (!currentFilter.field || !currentFilter.operator || currentFilter.value === "") {
+    if (
+      !currentFilter.field ||
+      !currentFilter.operator ||
+      currentFilter.value === ""
+    ) {
       alert("Please complete all filter fields before adding.");
       return;
     }
@@ -93,18 +98,31 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
         currentFilter.operator === "contains"
       ) {
         filter.value = currentFilter.nestedOperator
-          ? { [currentFilter.value]: { [currentFilter.nestedOperator]: currentFilter.nestedValue } }
+          ? {
+              [currentFilter.value]: {
+                [currentFilter.nestedOperator]: currentFilter.nestedValue,
+              },
+            }
           : currentFilter.value;
       } else {
         filter.value = currentFilter.value;
       }
 
-      const updatedFilters = [...filters, { [filter.field]: { [filter.operator]: filter.value } }];
+      const updatedFilters = [
+        ...filters,
+        { [filter.field]: { [filter.operator]: filter.value } },
+      ];
       setFilters(updatedFilters);
       onFilterUpdate(updatedFilters);
     }
 
-    setCurrentFilter({ field: "", operator: "", value: [], nestedOperator: "", nestedValue: "" });
+    setCurrentFilter({
+      field: "",
+      operator: "",
+      value: [],
+      nestedOperator: "",
+      nestedValue: "",
+    });
   };
 
   const handleRemoveFilter = (indexOrKey) => {
@@ -160,43 +178,53 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
 
     if (currentFilter.nestedOperator === "between") {
       return (
-        <Box>
-          <TextField
-            type="number"
-            placeholder="Start"
-            value={currentFilter.nestedValue?.[0] || ""}
-            onChange={(e) =>
-              handleNestedValueChange(parseFloat(e.target.value), 0)
-            }
-            style={{ marginRight: "8px" }}
-          />
-          <TextField
-            type="number"
-            placeholder="End"
-            value={currentFilter.nestedValue?.[1] || ""}
-            onChange={(e) =>
-              handleNestedValueChange(parseFloat(e.target.value), 1)
-            }
-          />
-        </Box>
+        <Grid container spacing={1} alignItems="center">
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="number"
+              label="Start"
+              value={currentFilter.nestedValue?.[0] || ""}
+              onChange={(e) =>
+                handleNestedValueChange(parseFloat(e.target.value), 0)
+              }
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="number"
+              label="End"
+              value={currentFilter.nestedValue?.[1] || ""}
+              onChange={(e) =>
+                handleNestedValueChange(parseFloat(e.target.value), 1)
+              }
+            />
+          </Grid>
+        </Grid>
       );
     }
 
     if (attributeType === "boolean") {
       return (
-        <Select
-          value={currentFilter.nestedValue || ""}
-          onChange={(e) => handleNestedValueChange(e.target.value)}
-        >
-          <MenuItem value={true}>True</MenuItem>
-          <MenuItem value={false}>False</MenuItem>
-        </Select>
+        <FormControl fullWidth>
+          <InputLabel>Value</InputLabel>
+          <Select
+            value={currentFilter.nestedValue || ""}
+            onChange={(e) => handleNestedValueChange(e.target.value)}
+          >
+            <MenuItem value={true}>True</MenuItem>
+            <MenuItem value={false}>False</MenuItem>
+          </Select>
+        </FormControl>
       );
     }
 
     return (
       <TextField
+        fullWidth
         type="number"
+        label="Value"
         value={currentFilter.nestedValue || ""}
         onChange={(e) => handleNestedValueChange(parseFloat(e.target.value))}
       />
@@ -206,155 +234,232 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
   const renderValueInput = () => {
     if (!currentFilter.field || !currentFilter.operator) return null;
 
-    if (currentFilter.field === "campsites.attributes" && currentFilter.operator === "contains") {
+    if (
+      currentFilter.field === "campsites.attributes" &&
+      currentFilter.operator === "contains"
+    ) {
       return (
-        <Box>
-          <Select
-            value={currentFilter.value || ""}
-            onChange={(e) => handleValueChange(e.target.value)}
-          >
-            {ATTRIBUTES_OPTIONS.map((option) => (
-              <MenuItem key={option.label} value={option.label}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-          {currentFilter.value && (
+        <Box mt={2}>
+          <FormControl fullWidth>
+            <InputLabel>Attribute</InputLabel>
             <Select
-              value={currentFilter.nestedOperator || ""}
-              onChange={(e) => handleNestedOperatorChange(e.target.value)}
+              value={currentFilter.value || ""}
+              onChange={(e) => handleValueChange(e.target.value)}
             >
-              {["gt", "ge", "lt", "le", "eq", "between"].map((op) => (
-                <MenuItem key={op} value={op}>
-                  {op}
+              {ATTRIBUTES_OPTIONS.map((option) => (
+                <MenuItem key={option.label} value={option.label}>
+                  {option.label}
                 </MenuItem>
               ))}
             </Select>
+          </FormControl>
+          {currentFilter.value && (
+            <Box mt={2}>
+              <FormControl fullWidth>
+                <InputLabel>Operator</InputLabel>
+                <Select
+                  value={currentFilter.nestedOperator || ""}
+                  onChange={(e) => handleNestedOperatorChange(e.target.value)}
+                >
+                  {["gt", "ge", "lt", "le", "eq", "between"].map((op) => (
+                    <MenuItem key={op} value={op}>
+                      {op}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Box mt={2}>{renderNestedValueInput()}</Box>
+            </Box>
           )}
-          {renderNestedValueInput()}
         </Box>
       );
     }
 
     if (currentFilter.operator === "between") {
       return (
-        <Box>
-          <TextField
-            type="number"
-            placeholder="Start"
-            value={currentFilter.value?.[0] || ""}
-            onChange={(e) =>
-              handleValueChange([parseFloat(e.target.value), currentFilter.value?.[1] || ""])
-            }
-            style={{ marginRight: "8px" }}
-          />
-          <TextField
-            type="number"
-            placeholder="End"
-            value={currentFilter.value?.[1] || ""}
-            onChange={(e) =>
-              handleValueChange([currentFilter.value?.[0] || "", parseFloat(e.target.value)])
-            }
-          />
-        </Box>
+        <Grid container spacing={1} alignItems="center">
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="number"
+              label="Start"
+              value={currentFilter.value?.[0] || ""}
+              onChange={(e) =>
+                handleValueChange([
+                  parseFloat(e.target.value),
+                  currentFilter.value?.[1] || "",
+                ])
+              }
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="number"
+              label="End"
+              value={currentFilter.value?.[1] || ""}
+              onChange={(e) =>
+                handleValueChange([
+                  currentFilter.value?.[0] || "",
+                  parseFloat(e.target.value),
+                ])
+              }
+            />
+          </Grid>
+        </Grid>
       );
     }
 
-    if (
-      currentFilter.field === "amenities" ||
-      currentFilter.field === "activities"
-    ) {
+    if (currentFilter.field === "amenities" || currentFilter.field === "activities") {
       const options =
         currentFilter.field === "amenities"
           ? AMENITIES_OPTIONS
           : ACTIVITIES_OPTIONS;
 
       return (
-        <Select
-          multiple
-          value={currentFilter.value || []}
-          onChange={(e) => handleValueChange(e.target.value)}
-          renderValue={(selected) => (Array.isArray(selected) ? selected.join(", ") : "")}
-        >
-          {options.map((option) => (
-            <MenuItem key={option} value={option}>
-              <Checkbox checked={currentFilter.value?.includes(option) || false} />
-              <ListItemText primary={option} />
-            </MenuItem>
-          ))}
-        </Select>
-      );
-    }
-
-    return <TextField onChange={(e) => handleValueChange(e.target.value)} />;
-  };
-
-  return (
-    <Box>
-      <FormControl style={{ marginRight: "8px" }}>
-        <InputLabel>{isWeatherFilter ? "Weather Field" : "Field"}</InputLabel>
-        <Select
-          value={currentFilter.field}
-          onChange={(e) => handleFieldChange(e.target.value)}
-        >
-          {(isWeatherFilter ? WEATHER_FIELDS : Object.keys(FILTER_OPTIONS)).map((field) => (
-            <MenuItem key={field} value={field}>
-              {field}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      {currentFilter.field && (
-        <FormControl style={{ marginRight: "8px" }}>
-          <InputLabel>Operator</InputLabel>
+        <FormControl fullWidth>
+          <InputLabel>{currentFilter.field}</InputLabel>
           <Select
-            value={currentFilter.operator}
-            onChange={(e) => handleOperatorChange(e.target.value)}
+            multiple
+            value={currentFilter.value || []}
+            onChange={(e) => handleValueChange(e.target.value)}
+            renderValue={(selected) =>
+              Array.isArray(selected) ? selected.join(", ") : ""
+            }
           >
-            {(isWeatherFilter
-              ? WEATHER_OPERATORS
-              : FILTER_OPTIONS[currentFilter.field] || []
-            ).map((op) => (
-              <MenuItem key={op} value={op}>
-                {op}
+            {options.map((option) => (
+              <MenuItem key={option} value={option}>
+                <Checkbox
+                  checked={currentFilter.value?.includes(option) || false}
+                />
+                <ListItemText primary={option} />
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-      )}
-      {renderValueInput()}
-      <Button onClick={handleAddFilter} style={{ marginLeft: "8px" }}>
-        Add Filter
-      </Button>
-      <Box>
+      );
+    }
+
+    return (
+      <TextField
+        fullWidth
+        label="Value"
+        onChange={(e) => handleValueChange(e.target.value)}
+      />
+    );
+  };
+
+  return (
+    <Paper elevation={3} style={{ padding: "16px", marginTop: "16px" }}>
+      <Typography variant="h6" gutterBottom>
+        {isWeatherFilter ? "Weather Filter" : "Query Filter"}
+      </Typography>
+      <Grid container spacing={2} alignItems="flex-end">
+        <Grid item xs={12} sm={4}>
+          <FormControl fullWidth>
+            <InputLabel>{isWeatherFilter ? "Weather Field" : "Field"}</InputLabel>
+            <Select
+              value={currentFilter.field}
+              onChange={(e) => handleFieldChange(e.target.value)}
+            >
+              {(isWeatherFilter
+                ? WEATHER_FIELDS
+                : Object.keys(FILTER_OPTIONS)
+              ).map((field) => (
+                <MenuItem key={field} value={field}>
+                  {field}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        {currentFilter.field && (
+          <Grid item xs={12} sm={4}>
+            <FormControl fullWidth>
+              <InputLabel>Operator</InputLabel>
+              <Select
+                value={currentFilter.operator}
+                onChange={(e) => handleOperatorChange(e.target.value)}
+              >
+                {(isWeatherFilter
+                  ? WEATHER_OPERATORS
+                  : FILTER_OPTIONS[currentFilter.field] || []
+                ).map((op) => (
+                  <MenuItem key={op} value={op}>
+                    {op}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        )}
+        {currentFilter.operator && (
+          <Grid item xs={12} sm={4}>
+            {renderValueInput()}
+          </Grid>
+        )}
+        <Grid item xs={12}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAddFilter}
+            disabled={!currentFilter.field || !currentFilter.operator}
+          >
+            Add Filter
+          </Button>
+        </Grid>
+      </Grid>
+      <Box mt={4}>
         <Typography variant="h6">Current Filters:</Typography>
         {isWeatherFilter
           ? Object.entries(filters).map(([key, value], index) => (
-              <Box key={index} display="flex" alignItems="center">
-                <Typography>
-                  {key}: {JSON.stringify(value)}
-                </Typography>
-                <IconButton
-                  onClick={() => handleRemoveFilter(key)}
-                  style={{ color: "red" }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
+              <Paper
+                key={index}
+                elevation={1}
+                style={{ padding: "8px", marginTop: "8px" }}
+              >
+                <Grid container alignItems="center" justifyContent="space-between">
+                  <Grid item>
+                    <Typography variant="body1">
+                      {key}: {JSON.stringify(value)}
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <IconButton
+                      onClick={() => handleRemoveFilter(key)}
+                      style={{ color: "red" }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              </Paper>
             ))
           : filters.map((filter, index) => (
-              <Box key={index} display="flex" alignItems="center">
-                <Typography>{JSON.stringify(filter)}</Typography>
-                <IconButton
-                  onClick={() => handleRemoveFilter(index)}
-                  style={{ color: "red" }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
+              <Paper
+                key={index}
+                elevation={1}
+                style={{ padding: "8px", marginTop: "8px" }}
+              >
+                <Grid container alignItems="center" justifyContent="space-between">
+                  <Grid item>
+                    <Typography variant="body1">
+                      {JSON.stringify(filter)}
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <IconButton
+                      onClick={() => handleRemoveFilter(index)}
+                      style={{ color: "red" }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              </Paper>
             ))}
       </Box>
-    </Box>
+    </Paper>
   );
 };
 
