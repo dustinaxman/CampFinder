@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   TextField,
   Button,
@@ -11,8 +11,8 @@ import {
   IconButton,
   Checkbox,
   ListItemText,
-} from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+} from "@mui/material";
+import { Delete as DeleteIcon } from "@mui/icons-material";
 
 const FILTER_OPTIONS = {
   "rating.average_rating": ["gt", "ge", "lt", "le", "eq", "between"],
@@ -23,7 +23,12 @@ const FILTER_OPTIONS = {
   "campsites.attributes": ["contains"],
 };
 
-const AMENITIES_OPTIONS = ["accessible boat dock", "campfire rings", "drinking water", "restrooms"];
+const AMENITIES_OPTIONS = [
+  "accessible boat dock",
+  "campfire rings",
+  "drinking water",
+  "restrooms",
+];
 const ACTIVITIES_OPTIONS = ["hiking", "fishing", "swimming", "kayaking"];
 const ATTRIBUTES_OPTIONS = [
   { label: "campfire allowed", type: "boolean" },
@@ -124,8 +129,66 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
     setCurrentFilter((prev) => ({ ...prev, nestedValue }));
   };
 
+  const renderNestedValueInput = () => {
+    if (!currentFilter.value || !currentFilter.nestedOperator) return null;
+
+    const attributeType = ATTRIBUTES_OPTIONS.find(
+      (attr) => attr.label === currentFilter.value
+    )?.type;
+
+    if (attributeType === "boolean") {
+      return (
+        <Select
+          value={currentFilter.nestedValue || ""}
+          onChange={(e) => handleNestedValueChange(e.target.value)}
+        >
+          <MenuItem value={true}>True</MenuItem>
+          <MenuItem value={false}>False</MenuItem>
+        </Select>
+      );
+    }
+
+    return (
+      <TextField
+        type="number"
+        value={currentFilter.nestedValue || ""}
+        onChange={(e) => handleNestedValueChange(parseFloat(e.target.value))}
+      />
+    );
+  };
+
   const renderValueInput = () => {
     if (!currentFilter.field || !currentFilter.operator) return null;
+
+    if (currentFilter.field === "campsites.attributes" && currentFilter.operator === "contains") {
+      return (
+        <Box>
+          <Select
+            value={currentFilter.value || ""}
+            onChange={(e) => handleValueChange(e.target.value)}
+          >
+            {ATTRIBUTES_OPTIONS.map((option) => (
+              <MenuItem key={option.label} value={option.label}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+          {currentFilter.value && (
+            <Select
+              value={currentFilter.nestedOperator || ""}
+              onChange={(e) => handleNestedOperatorChange(e.target.value)}
+            >
+              {["gt", "ge", "lt", "le", "eq", "between"].map((op) => (
+                <MenuItem key={op} value={op}>
+                  {op}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+          {renderNestedValueInput()}
+        </Box>
+      );
+    }
 
     if (currentFilter.operator === "between") {
       return (
@@ -153,15 +216,12 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
 
     if (
       currentFilter.field === "amenities" ||
-      currentFilter.field === "activities" ||
-      currentFilter.field === "campsites.attributes"
+      currentFilter.field === "activities"
     ) {
       const options =
         currentFilter.field === "amenities"
           ? AMENITIES_OPTIONS
-          : currentFilter.field === "activities"
-          ? ACTIVITIES_OPTIONS
-          : ATTRIBUTES_OPTIONS.map((attr) => attr.label);
+          : ACTIVITIES_OPTIONS;
 
       return (
         <Select
