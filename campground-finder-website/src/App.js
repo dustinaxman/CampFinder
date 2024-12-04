@@ -1,73 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button, Container, Paper, Typography } from '@mui/material';
-import CampgroundList from './CampgroundList';
+import { Button, Container, Paper, Typography, Box, TextField } from '@mui/material';
 import QueryFilterForm from './QueryFilterForm';
+import CampgroundList from './CampgroundList';
+import AvailabilityForm from './AvailabilityForm';
 import './App.css';
 
 function App() {
-  const [query, setQuery] = useState({
-    filters: { AND: [], OR: [], location: { center: [null, null], radius: '' } },
-    sort: { key: 'rating.average_rating', reverse: true },
+  const [andFilters, setAndFilters] = useState([]);
+  const [orFilters, setOrFilters] = useState([]);
+  const [weatherFilters, setWeatherFilters] = useState({});
+  const [locationFilter, setLocationFilter] = useState({ center: [null, null], radius: '' });
+  const [availability, setAvailability] = useState({
+    start_window_date: '',
+    end_window_date: '',
+    num_nights: 2,
+    days_of_the_week: [0, 1, 2, 3, 4, 5, 6],
   });
-
   const [campgrounds, setCampgrounds] = useState([]);
-  const [errors, setErrors] = useState({});
   const [isSearching, setIsSearching] = useState(false);
-  const [locationEnabled, setLocationEnabled] = useState(false);
 
-  // Use browser's Geolocation API to get user's location
   useEffect(() => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setQuery((prevQuery) => ({
-            ...prevQuery,
-            filters: {
-              ...prevQuery.filters,
-              location: {
-                ...prevQuery.filters.location,
-                center: [position.coords.latitude, position.coords.longitude],
-              },
-            },
+          setLocationFilter((prev) => ({
+            ...prev,
+            center: [position.coords.latitude, position.coords.longitude],
           }));
-          setLocationEnabled(true);
         },
-        (error) => {
-          console.error('Error getting location:', error);
-          setLocationEnabled(false);
-        }
+        (error) => console.error('Error getting location:', error)
       );
-    } else {
-      console.error('Geolocation not available in this browser.');
-      setLocationEnabled(false);
     }
   }, []);
 
-  // Validate query structure
-  const validateQuery = () => {
-    const newErrors = {};
-
-    if (query.sort && !query.sort.key) {
-      newErrors.sort = 'Sort key is required.';
-    }
-
-    if (!query.filters.location.radius || isNaN(query.filters.location.radius)) {
-      newErrors.locationRadius = 'Valid location radius is required.';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleFilterUpdate = (filters, type) => {
+    if (type === 'AND') setAndFilters(filters);
+    if (type === 'OR') setOrFilters(filters);
   };
 
-  // Handle search submission
-  const handleSearch = async () => {
-    if (!validateQuery()) return;
+  const handleWeatherFilterUpdate = (newWeatherFilters) => {
+    setWeatherFilters(newWeatherFilters);
+  };
 
-    if (!locationEnabled || query.filters.location.center.includes(null)) {
-      alert('Location is required. Please enable location services.');
-      return;
-    }
+  const handleAvailabilityUpdate = (newAvailability) => {
+    setAvailability(newAvailability);
+  };
+
+  const handleSearch = async () => {
+    const query = {
+      availability,
+      filters: {
+        weather: weatherFilters,
+        AND: andFilters,
+        OR: orFilters,
+        location: locationFilter,
+      },
+      sort: {
+        key: 'rating.average_rating',
+        reverse: true,
+      },
+    };
+
+    console.log('Query:', query);
 
     setIsSearching(true);
     try {
@@ -82,24 +77,75 @@ function App() {
 
   return (
     <Container>
-      <Paper elevation={3} className="main-container">
+      <Paper elevation={3} style={{ padding: '16px' }}>
         <Typography variant="h4" gutterBottom>
           Find Campgrounds
         </Typography>
-        <QueryFilterForm query={query} setQuery={setQuery} errors={errors} />
+
+        {/* Availability Filters */}
+        <Typography variant="h6">Availability</Typography>
+        <AvailabilityForm
+          availability={availability}
+          onAvailabilityUpdate={handleAvailabilityUpdate}
+        />
+
+        {/* AND Filters */}
+        <Typography variant="h6" style={{ marginTop: '16px' }}>
+          AND Filters
+        </Typography>
+        <QueryFilterForm
+          filterType="AND"
+          onFilterUpdate={(filters) => handleFilterUpdate(filters, 'AND')}
+        />
+
+        {/* OR Filters */}
+        <Typography variant="h6" style={{ marginTop: '16px' }}>
+          OR Filters
+        </Typography>
+        <QueryFilterForm
+          filterType="OR"
+          onFilterUpdate={(filters) => handleFilterUpdate(filters, 'OR')}
+        />
+
+        {/* Weather Filters */}
+        <Typography variant="h6" style={{ marginTop: '16px' }}>
+          Weather Filters
+        </Typography>
+        <QueryFilterForm isWeatherFilter onFilterUpdate={handleWeatherFilterUpdate} />
+
+        {/* Location Filters */}
+        <Typography variant="h6" style={{ marginTop: '16px' }}>
+          Location Filters
+        </Typography>
+        <TextField
+          label="Radius (km)"
+          type="number"
+          value={locationFilter.radius}
+          onChange={(e) =>
+            setLocationFilter((prev) => ({ ...prev, radius: parseFloat(e.target.value) || 0 }))
+          }
+        />
+        <Typography>
+          Location: Latitude {locationFilter.center[0] || 'N/A'}, Longitude{' '}
+          {locationFilter.center[1] || 'N/A'}
+        </Typography>
+
+        {/* Search Button */}
         <Button
           variant="contained"
           color="primary"
           onClick={handleSearch}
           fullWidth
+          style={{ marginTop: '16px' }}
           disabled={isSearching}
         >
-          {isSearching ? 'Searching...' : 'Search Campgrounds'}
+          {isSearching ? 'Searching...' : 'Search Campsites'}
         </Button>
       </Paper>
 
+      {/* Results */}
       {campgrounds.length > 0 && (
-        <Paper elevation={3} className="result-container">
+        <Paper elevation={3} style={{ marginTop: '16px', padding: '16px' }}>
           <CampgroundList campgrounds={campgrounds} />
         </Paper>
       )}
