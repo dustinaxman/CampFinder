@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button, Container, Paper, Typography, Box, TextField } from '@mui/material';
+import {
+  Button,
+  Container,
+  Paper,
+  Typography,
+  Box,
+  Checkbox,
+  TextField,
+  FormControlLabel,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@mui/material';
 import QueryFilterForm from './QueryFilterForm';
 import CampgroundList from './CampgroundList';
 import AvailabilityForm from './AvailabilityForm';
@@ -76,76 +90,103 @@ function App() {
   };
 
   return (
-    <Container>
-      <Paper elevation={3} style={{ padding: '16px' }}>
+    <Container maxWidth="md" style={{ marginTop: '24px' }}>
+      <Paper elevation={3} style={{ padding: '24px' }}>
         <Typography variant="h4" gutterBottom>
           Find Campgrounds
         </Typography>
 
         {/* Availability Filters */}
-        <Typography variant="h6">Availability</Typography>
-        <AvailabilityForm
-          availability={availability}
-          onAvailabilityUpdate={handleAvailabilityUpdate}
-        />
+        <Box mt={3}>
+          <Typography variant="h6" gutterBottom>
+            Availability
+          </Typography>
+          <AvailabilityForm
+            availability={availability}
+            onAvailabilityUpdate={handleAvailabilityUpdate}
+          />
+        </Box>
 
         {/* AND Filters */}
-        <Typography variant="h6" style={{ marginTop: '16px' }}>
-          AND Filters
-        </Typography>
-        <QueryFilterForm
-          filterType="AND"
-          onFilterUpdate={(filters) => handleFilterUpdate(filters, 'AND')}
-        />
+        <Box mt={4}>
+          <Typography variant="h6" gutterBottom>
+            AND Filters
+          </Typography>
+          <QueryFilterForm
+            filterType="AND"
+            onFilterUpdate={(filters) => handleFilterUpdate(filters, 'AND')}
+          />
+        </Box>
 
         {/* OR Filters */}
-        <Typography variant="h6" style={{ marginTop: '16px' }}>
-          OR Filters
-        </Typography>
-        <QueryFilterForm
-          filterType="OR"
-          onFilterUpdate={(filters) => handleFilterUpdate(filters, 'OR')}
-        />
+        <Box mt={4}>
+          <Typography variant="h6" gutterBottom>
+            OR Filters
+          </Typography>
+          <QueryFilterForm
+            filterType="OR"
+            onFilterUpdate={(filters) => handleFilterUpdate(filters, 'OR')}
+          />
+        </Box>
 
         {/* Weather Filters */}
-        <Typography variant="h6" style={{ marginTop: '16px' }}>
-          Weather Filters
-        </Typography>
-        <QueryFilterForm isWeatherFilter onFilterUpdate={handleWeatherFilterUpdate} />
+        <Box mt={4}>
+          <Typography variant="h6" gutterBottom>
+            Weather Filters
+          </Typography>
+          <QueryFilterForm isWeatherFilter onFilterUpdate={handleWeatherFilterUpdate} />
+        </Box>
 
         {/* Location Filters */}
-        <Typography variant="h6" style={{ marginTop: '16px' }}>
-          Location Filters
-        </Typography>
-        <TextField
-          label="Radius (km)"
-          type="number"
-          value={locationFilter.radius}
-          onChange={(e) =>
-            setLocationFilter((prev) => ({ ...prev, radius: parseFloat(e.target.value) || 0 }))
-          }
-        />
-        <Typography>
-          Location: Latitude {locationFilter.center[0] || 'N/A'}, Longitude{' '}
-          {locationFilter.center[1] || 'N/A'}
-        </Typography>
+        <Box mt={4}>
+          <Typography variant="h6" gutterBottom>
+            Location Filters
+          </Typography>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Radius (km)"
+                type="number"
+                value={locationFilter.radius}
+                onChange={(e) =>
+                  setLocationFilter((prev) => ({
+                    ...prev,
+                    radius: parseFloat(e.target.value) || '',
+                  }))
+                }
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1">
+                Your Location: Latitude {locationFilter.center[0] || 'N/A'}, Longitude{' '}
+                {locationFilter.center[1] || 'N/A'}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
 
         {/* Search Button */}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSearch}
-          fullWidth
-          style={{ marginTop: '16px' }}
-          disabled={isSearching}
-        >
-          {isSearching ? 'Searching...' : 'Search Campsites'}
-        </Button>
+        <Box mt={4}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSearch}
+            fullWidth
+            size="large"
+            disabled={isSearching}
+          >
+            {isSearching ? 'Searching...' : 'Search Campsites'}
+          </Button>
+        </Box>
       </Paper>
 
       {/* Results */}
       {campgrounds.length > 0 && (
-        <Paper elevation={3} style={{ marginTop: '16px', padding: '16px' }}>
+        <Paper elevation={3} style={{ marginTop: '24px', padding: '24px' }}>
+          <Typography variant="h5" gutterBottom>
+            Search Results
+          </Typography>
           <CampgroundList campgrounds={campgrounds} />
         </Paper>
       )}
