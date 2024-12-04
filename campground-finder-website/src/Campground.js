@@ -7,11 +7,14 @@ function Campground({ campground }) {
       <Typography variant="h5" gutterBottom>
         {campground.name}
       </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        ID: {campground.id}
+      <Typography variant="subtitle1" gutterBottom style={{ fontWeight: 'bold' }}>
+          ID: <a href={`https://www.recreation.gov/camping/campgrounds/${campground.id}`} target="_blank" rel="noopener noreferrer">
+            {campground.id}
+          </a>
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Average Rating: {campground.rating?.average_rating || 'N/A'} ({campground.rating?.number_of_ratings || 0} reviews)
+        Average Rating: {campground.rating?.average_rating?.toFixed(2) || 'N/A'} (
+        {campground.rating?.number_of_ratings || 0} reviews)
       </Typography>
       <Typography variant="body1" gutterBottom>
         Activities: {campground.activities.join(', ')}
@@ -24,7 +27,9 @@ function Campground({ campground }) {
           <Grid item xs={12} md={6} key={campsite.campsite_id}>
             <Paper elevation={2} style={{ padding: '10px' }}>
               <Typography variant="h6" gutterBottom>
-                Campsite: {campsite.name} (ID: {campsite.campsite_id})
+                  Campsite: {campsite.name} (ID: <a href={`https://www.recreation.gov/camping/campsites/${campsite.campsite_id}`} target="_blank" rel="noopener noreferrer">
+                    {campsite.campsite_id}
+                  </a>)
               </Typography>
               <Typography variant="body2" gutterBottom>
                 Accessible: {campsite.accessible ? 'Yes' : 'No'}
@@ -46,7 +51,9 @@ function Campground({ campground }) {
                 {campsite.available.map(([start, end], index) => (
                   <ListItem key={index}>
                     <ListItemText
-                      primary={`From: ${new Date(start).toLocaleDateString()} To: ${new Date(end).toLocaleDateString()}`}
+                      primary={`From: ${new Date(start).toLocaleDateString()} To: ${new Date(
+                        end
+                      ).toLocaleDateString()}`}
                     />
                   </ListItem>
                 ))}
