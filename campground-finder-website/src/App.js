@@ -64,11 +64,11 @@ function App() {
   const handleSearch = async () => {
     const query = {
       availability,
+      location: locationFilter,
       filters: {
         weather: weatherFilters,
         AND: andFilters,
         OR: orFilters,
-        location: locationFilter,
       },
       sort: {
         key: 'rating.average_rating',
@@ -80,7 +80,9 @@ function App() {
 
     setIsSearching(true);
     try {
+      console.log("Sending request to server with query")
       const response = await axios.post('http://127.0.0.1:8000/filter-campgrounds', query);
+      console.log(response)
       setCampgrounds(response.data);
     } catch (error) {
       console.error('Error fetching campgrounds:', error);

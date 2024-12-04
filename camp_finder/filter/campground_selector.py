@@ -83,7 +83,21 @@ class CampgroundData:
 
     def _apply_condition(self, value, condition):
         """Helper function to apply filtering conditions."""
+        #TODO: modify to handle strings elegantly and remove the massaging to float
+        try:
+            value = float(value)
+        except ValueError:
+            # Handle the case where the value is not a valid number
+            pass
         for op, op_val in condition.items():
+            try:
+                if isinstance(op_val, list) and (len(op_val) > 1):
+                    op_val[0] = float(op_val[0])
+                    op_val[1] = float(op_val[1])
+                else:
+                    op_val = float(op_val)
+            except ValueError:
+                pass
             try:
                 if op == 'eq' and value != op_val:
                     return False
@@ -98,6 +112,7 @@ class CampgroundData:
                 if op == 'between' and not (op_val[0] <= value <= op_val[1]):
                     return False
             except TypeError:
+                print("Types in condition don't match and can't be massaged")
                 return False
         return True
 

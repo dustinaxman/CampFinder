@@ -5,30 +5,41 @@
 
 docker build -t camp-finder .
 
-docker run -p 8000:5000 -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} -e AWS_DEFAULT_REGION=us-east-1 camp-finder gunicorn -w "1" --timeout 300 -b 0.0.0.0:5000 app:app
+docker run -p 8000:5000 -v ~/.aws:/root/.aws camp-finder gunicorn -w "1" --timeout 300 -b 0.0.0.0:5000 app:app
 
 
 curl -X GET http://localhost:8000/health
 
 curl -X POST http://127.0.0.1:8000/filter-campgrounds -H "Content-Type: application/json" -d '{
-      "availability": {
-        "start_window_date": "2024-11-07", 
-        "end_window_date": "2024-11-11", 
-        "num_nights": 2, 
+    "availability": {
+        "start_window_date": "2024-12-03",
+        "end_window_date": "2024-12-30",
+        "num_nights": 2,
         "days_of_the_week": [4, 5]
-      },
-      "filters": {
+    },
+    "location": {
+        "center": [37.764116, -122.455423],
+        "radius": 100
+    },
+    "filters": {
+        "weather": {
+            "min_temp": {"gt": 30.0},
+            "rain_amount_mm": {"lt": 3.0},
+            "humidity": {"between": [0, 90]},
+            "max_temp": {"between": [60, 90]}
+        },
         "AND": [
-          {"rating.average_rating": {"gt": 3.5}},
-          {"rating.number_of_ratings": {"gt": 200}},
-          {"location": {"within_radius": {"center": [37.759244, -122.451855], "radius": 170}}}
-        ]
-      },
-      "sort": {
+            {"rating.average_rating": {"gt": 4.0}},
+            {"rating.number_of_ratings": {"gt": 10}}
+        ],
+        "OR": []
+    },
+    "sort": {
         "key": "rating.average_rating",
         "reverse": true
-      }
-    }'
+    }
+}'
+
 
 
 aws ecr create-repository --repository-name camp-finder --region us-east-1

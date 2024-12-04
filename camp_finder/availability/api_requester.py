@@ -10,7 +10,7 @@ import urllib.parse
 from urllib.parse import urlparse, parse_qs, quote, urlencode
 from dateutil.relativedelta import relativedelta
 
-API_PER_MINUTE_REQUEST_RATE_LIMIT = 20
+API_PER_MINUTE_REQUEST_RATE_LIMIT = 10
 
 def encode_params(params):
     return '&'.join([f"{key}={quote(str(value), safe='')}" for key, value in params.items()])

@@ -14,7 +14,7 @@ S3_KEY = "all_campground_info/recgov_all_converted_100824.jsonl"
 jsonl_file = Path.home()/"recgov_all_converted_100824.jsonl"
 download_s3_file(S3_KEY, jsonl_file)
 campground_data = CampgroundData(jsonl_file)
-
+print("Finished download and data loading")
 
 def custom_serializer(obj):
     """Helper function for serializing datetime objects to JSON."""
@@ -31,7 +31,8 @@ def filter_campgrounds():
     try:
         # Parse the JSON request
         filter_sort_dict = request.get_json()
-
+        print("Received the following filter sort json:")
+        print(filter_sort_dict)
         if not filter_sort_dict:
             return jsonify({"error": "Invalid or missing JSON data"}), 400
 

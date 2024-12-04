@@ -15,6 +15,14 @@ import {
   Paper,
 } from "@mui/material";
 import { Delete as DeleteIcon } from "@mui/icons-material";
+import {AMENITIES_OPTIONS, ACTIVITIES_OPTIONS, ATTRIBUTES_OPTIONS} from "./constants.js"
+
+// Sort the options
+const sortedAmenities = [...AMENITIES_OPTIONS].sort();
+const sortedActivities = [...ACTIVITIES_OPTIONS].sort();
+const sortedAttributes = [...ATTRIBUTES_OPTIONS].sort((a, b) =>
+  a.label.localeCompare(b.label)
+);
 
 const FILTER_OPTIONS = {
   "rating.average_rating": ["gt", "ge", "lt", "le", "eq", "between"],
@@ -27,17 +35,8 @@ const FILTER_OPTIONS = {
   "campsites.attributes": ["contains"],
 };
 
-const AMENITIES_OPTIONS = [
-  "accessible boat dock",
-  "campfire rings",
-  "drinking water",
-  "restrooms",
-];
-const ACTIVITIES_OPTIONS = ["hiking", "fishing", "swimming", "kayaking"];
-const ATTRIBUTES_OPTIONS = [
-  { label: "campfire allowed", type: "boolean" },
-  { label: "driveway length", type: "number" },
-];
+//todo: you need to make the string type in attributes work here Like you should be able to do equal operation and have it not convert to number or something
+
 
 const WEATHER_FIELDS = ["min_temp", "max_temp", "rain_amount_mm", "humidity"];
 const WEATHER_OPERATORS = ["gt", "ge", "lt", "le", "eq", "between"];
@@ -53,10 +52,25 @@ const QueryFilterForm = ({ isWeatherFilter, onFilterUpdate }) => {
   });
 
   const handleAddFilter = () => {
+    // Determine the attribute type
+    let attributeType = null;
+    if (
+      currentFilter.field === "campsites.attributes" &&
+      currentFilter.operator === "contains"
+    ) {
+      attributeType = sortedAttributes.find(
+        (attr) => attr.label === currentFilter.value
+      )?.type;
+    }
+
     if (
       !currentFilter.field ||
       !currentFilter.operator ||
-      currentFilter.value === ""
+      currentFilter.value === "" ||
+      (currentFilter.field === "campsites.attributes" &&
+        currentFilter.operator === "contains" &&
+        attributeType !== "none" &&
+        (!currentFilter.nestedOperator || currentFilter.nestedValue === ""))
     ) {
       alert("Please complete all filter fields before adding.");
       return;
@@ -99,13 +113,17 @@ const QueryFilterForm = ({ isWeatherFilter, onFilterUpdate }) => {
         currentFilter.field === "campsites.attributes" &&
         currentFilter.operator === "contains"
       ) {
-        filter.value = currentFilter.nestedOperator
-          ? {
-              [currentFilter.value]: {
-                [currentFilter.nestedOperator]: currentFilter.nestedValue,
-              },
-            }
-          : currentFilter.value;
+        if (attributeType === "none") {
+          filter.value = currentFilter.value;
+        } else {
+          filter.value = currentFilter.nestedOperator
+            ? {
+                [currentFilter.value]: {
+                  [currentFilter.nestedOperator]: currentFilter.nestedValue,
+                },
+              }
+            : currentFilter.value;
+        }
       } else {
         filter.value = currentFilter.value;
       }
@@ -149,7 +167,12 @@ const QueryFilterForm = ({ isWeatherFilter, onFilterUpdate }) => {
   };
 
   const handleValueChange = (value) => {
-    setCurrentFilter((prev) => ({ ...prev, value }));
+    setCurrentFilter((prev) => ({
+      ...prev,
+      value,
+      nestedOperator: "",
+      nestedValue: "",
+    }));
   };
 
   const handleNestedOperatorChange = (nestedOperator) => {
@@ -174,7 +197,7 @@ const QueryFilterForm = ({ isWeatherFilter, onFilterUpdate }) => {
   const renderNestedValueInput = () => {
     if (!currentFilter.value || !currentFilter.nestedOperator) return null;
 
-    const attributeType = ATTRIBUTES_OPTIONS.find(
+    const attributeType = sortedAttributes.find(
       (attr) => attr.label === currentFilter.value
     )?.type;
 
@@ -240,6 +263,10 @@ const QueryFilterForm = ({ isWeatherFilter, onFilterUpdate }) => {
       currentFilter.field === "campsites.attributes" &&
       currentFilter.operator === "contains"
     ) {
+      const attributeType = sortedAttributes.find(
+        (attr) => attr.label === currentFilter.value
+      )?.type;
+
       return (
         <Box mt={2}>
           <FormControl fullWidth>
@@ -248,14 +275,14 @@ const QueryFilterForm = ({ isWeatherFilter, onFilterUpdate }) => {
               value={currentFilter.value || ""}
               onChange={(e) => handleValueChange(e.target.value)}
             >
-              {ATTRIBUTES_OPTIONS.map((option) => (
+              {sortedAttributes.map((option) => (
                 <MenuItem key={option.label} value={option.label}>
                   {option.label}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          {currentFilter.value && (
+          {currentFilter.value && attributeType !== "none" && (
             <Box mt={2}>
               <FormControl fullWidth>
                 <InputLabel>Operator</InputLabel>
@@ -315,8 +342,8 @@ const QueryFilterForm = ({ isWeatherFilter, onFilterUpdate }) => {
     if (currentFilter.field === "amenities" || currentFilter.field === "activities") {
       const options =
         currentFilter.field === "amenities"
-          ? AMENITIES_OPTIONS
-          : ACTIVITIES_OPTIONS;
+          ? sortedAmenities
+          : sortedActivities;
 
       return (
         <FormControl fullWidth>
