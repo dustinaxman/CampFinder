@@ -9,6 +9,8 @@ import {
   Box,
   Typography,
   IconButton,
+  Checkbox,
+  ListItemText,
 } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 
@@ -21,6 +23,13 @@ const FILTER_OPTIONS = {
   "campsites.attributes": ["contains"],
 };
 
+const AMENITIES_OPTIONS = ["accessible boat dock", "campfire rings", "drinking water", "restrooms"];
+const ACTIVITIES_OPTIONS = ["hiking", "fishing", "swimming", "kayaking"];
+const ATTRIBUTES_OPTIONS = [
+  { label: "campfire allowed", type: "boolean" },
+  { label: "driveway length", type: "number" },
+];
+
 const WEATHER_FIELDS = ["min_temp", "max_temp", "rain_amount_mm", "humidity"];
 const WEATHER_OPERATORS = ["gt", "ge", "lt", "le", "eq", "between"];
 
@@ -29,7 +38,7 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
   const [currentFilter, setCurrentFilter] = useState({
     field: "",
     operator: "",
-    value: "",
+    value: [],
     nestedOperator: "",
     nestedValue: "",
   });
@@ -79,7 +88,7 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
       onFilterUpdate(updatedFilters);
     }
 
-    setCurrentFilter({ field: "", operator: "", value: "", nestedOperator: "", nestedValue: "" });
+    setCurrentFilter({ field: "", operator: "", value: [], nestedOperator: "", nestedValue: "" });
   };
 
   const handleRemoveFilter = (indexOrKey) => {
@@ -96,7 +105,7 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
   };
 
   const handleFieldChange = (field) => {
-    setCurrentFilter({ field, operator: "", value: "", nestedOperator: "", nestedValue: "" });
+    setCurrentFilter({ field, operator: "", value: [], nestedOperator: "", nestedValue: "" });
   };
 
   const handleOperatorChange = (operator) => {
@@ -118,8 +127,8 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
   const renderValueInput = () => {
     if (!currentFilter.field || !currentFilter.operator) return null;
 
-    if (isWeatherFilter || currentFilter.operator === "between") {
-      return currentFilter.operator === "between" ? (
+    if (currentFilter.operator === "between") {
+      return (
         <Box>
           <TextField
             type="number"
@@ -128,7 +137,7 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
             onChange={(e) =>
               handleValueChange([parseFloat(e.target.value), currentFilter.value?.[1] || ""])
             }
-            style={{ marginRight: '8px' }}
+            style={{ marginRight: "8px" }}
           />
           <TextField
             type="number"
@@ -139,60 +148,35 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
             }
           />
         </Box>
-      ) : (
-        <TextField
-          type="number"
-          onChange={(e) => handleValueChange(Number(e.target.value))}
-          value={currentFilter.value || ""}
-        />
       );
     }
 
-    if (currentFilter.field === "campsites.attributes" && currentFilter.operator === "contains") {
+    if (
+      currentFilter.field === "amenities" ||
+      currentFilter.field === "activities" ||
+      currentFilter.field === "campsites.attributes"
+    ) {
+      const options =
+        currentFilter.field === "amenities"
+          ? AMENITIES_OPTIONS
+          : currentFilter.field === "activities"
+          ? ACTIVITIES_OPTIONS
+          : ATTRIBUTES_OPTIONS.map((attr) => attr.label);
+
       return (
-        <Box>
-          <FormControl style={{ marginRight: '8px' }}>
-            <InputLabel>Attribute</InputLabel>
-            <Select
-              value={currentFilter.value || ""}
-              onChange={(e) => handleValueChange(e.target.value)}
-            >
-              {[
-                { label: "campfire allowed", type: "boolean" },
-                { label: "driveway length", type: "number" },
-              ].map((attr) => (
-                <MenuItem key={attr.label} value={attr.label}>
-                  {attr.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          {currentFilter.value && (
-            <FormControl style={{ marginRight: '8px' }}>
-              <InputLabel>Nested Operator</InputLabel>
-              <Select
-                value={currentFilter.nestedOperator || ""}
-                onChange={(e) => handleNestedOperatorChange(e.target.value)}
-              >
-                {WEATHER_OPERATORS.map((op) => (
-                  <MenuItem key={op} value={op}>
-                    {op}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-          {currentFilter.nestedOperator && (
-            <TextField
-              type={
-                currentFilter.value === "driveway length" ? "number" : "text"
-              }
-              value={currentFilter.nestedValue || ""}
-              onChange={(e) => handleNestedValueChange(e.target.value)}
-              placeholder="Value"
-            />
-          )}
-        </Box>
+        <Select
+          multiple
+          value={currentFilter.value || []}
+          onChange={(e) => handleValueChange(e.target.value)}
+          renderValue={(selected) => (Array.isArray(selected) ? selected.join(", ") : "")}
+        >
+          {options.map((option) => (
+            <MenuItem key={option} value={option}>
+              <Checkbox checked={currentFilter.value?.includes(option) || false} />
+              <ListItemText primary={option} />
+            </MenuItem>
+          ))}
+        </Select>
       );
     }
 
@@ -201,7 +185,7 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
 
   return (
     <Box>
-      <FormControl style={{ marginRight: '8px' }}>
+      <FormControl style={{ marginRight: "8px" }}>
         <InputLabel>{isWeatherFilter ? "Weather Field" : "Field"}</InputLabel>
         <Select
           value={currentFilter.field}
@@ -215,7 +199,7 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
         </Select>
       </FormControl>
       {currentFilter.field && (
-        <FormControl style={{ marginRight: '8px' }}>
+        <FormControl style={{ marginRight: "8px" }}>
           <InputLabel>Operator</InputLabel>
           <Select
             value={currentFilter.operator}
@@ -233,7 +217,7 @@ const QueryFilterForm = ({ filterType, isWeatherFilter, onFilterUpdate }) => {
         </FormControl>
       )}
       {renderValueInput()}
-      <Button onClick={handleAddFilter} style={{ marginLeft: '8px' }}>
+      <Button onClick={handleAddFilter} style={{ marginLeft: "8px" }}>
         Add Filter
       </Button>
       <Box>
