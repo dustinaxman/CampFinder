@@ -1,19 +1,19 @@
 import pytest
 from datetime import datetime
-from campground_selector import CampgroundData
+from camp_finder.filter.campground_selector import CampgroundData, convert_to_datetime
 
 
 @pytest.fixture(scope="module")
 def campground_data():
     # Setup fixture for CampgroundData instance from a sample JSONL file
-    jsonl_file = '/path/to/your/test_json_file.jsonl'  # Replace with your path
+    jsonl_file = '/Users/deaxman/Downloads/recgov_all_converted_100824.jsonl'  # Replace with your path
     return CampgroundData(jsonl_file)
 
 
 def test_convert_to_datetime(campground_data):
     # Test datetime conversion
     date_str = "2024-11-07"
-    result = campground_data.convert_to_datetime(date_str, None)
+    result = convert_to_datetime(date_str, None)
     expected = datetime(2024, 11, 7)
     assert result == expected
 
@@ -58,16 +58,18 @@ def test_filter_and_sort_campgrounds(campground_data):
     # Test the main filtering and sorting functionality
     filter_sort_dict = {
         "availability": {
-            "start_window_date": "2024-11-07", 
-            "end_window_date": "2024-11-11", 
-            "num_nights": 2, 
+            "start_window_date": "2024-12-03",
+            "end_window_date": "2024-12-10",
+            "num_nights": 2,
             "days_of_the_week": [4, 5]
         },
+        "location": {"center": [34.0522, -118.2437], "radius": 50},
         "filters": {
+            "weather": {"min_temp": {"gt": 40.0}, "rain_amount_mm": {"lt": 1.0}, "humidity": {"between": [20, 70]},
+                        "max_temp": {"between": [60, 90]}},
             "AND": [
                 {"rating.average_rating": {"gt": 4.0}},
                 {"rating.number_of_ratings": {"gt": 100}},
-                {"location": {"within_radius": {"center": [37.759244, -122.451855], "radius": 200}}}
             ]
         },
         "sort": {

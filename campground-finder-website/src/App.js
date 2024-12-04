@@ -146,7 +146,7 @@ function App() {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Radius (km)"
+                label="Radius (Miles)"
                 type="number"
                 value={locationFilter.radius}
                 onChange={(e) =>

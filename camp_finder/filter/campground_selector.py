@@ -191,8 +191,11 @@ class CampgroundData:
         return all([self._apply_condition(weather[k], condition) for k, condition in conds.items()])
 
     def filter_campsite_available_dates_by_weather(self, campsites, conds):
+        for date_group, weather in zip(campsites["available"], campsites["weathers"]):
+            print(conds, weather, self.passes_weather_filter(weather, conds))
         [date_group for date_group, weather in zip(campsites["available"], campsites["weathers"]) if self.passes_weather_filter(weather, conds)]
-    # {
+        campsites["available"] = [date_group for date_group, weather in zip(campsites["available"], campsites["weathers"]) if self.passes_weather_filter(weather, conds)]
+        # {
     #                     "min_temp": day['temp']['min'],
     #                     "max_temp": day['temp']['max'],
     #                     "cloud_cover": day['clouds'],
@@ -204,7 +207,7 @@ class CampgroundData:
         filters = filter_sort_dict.get("filters", {})
         sort = filter_sort_dict.get("sort", {})
         availability = filter_sort_dict.get("availability", {})
-
+        location_filter = filter_sort_dict.get("location", None)
         today = datetime.today()
         two_weeks_from_today = today + timedelta(weeks=2)
         start_window_datetime = convert_to_datetime(availability.get("start_window_date"), today)
@@ -232,10 +235,9 @@ class CampgroundData:
                     continue
 
             # Location filtering (within radius)
-            location_filter = next((cond.get("location") for cond in and_conditions if "location" in cond), None)
-            if location_filter and "within_radius" in location_filter:
-                center_lat, center_lon = location_filter["within_radius"]["center"]
-                radius = location_filter["within_radius"]["radius"]
+            if location_filter:
+                center_lat, center_lon = location_filter["center"]
+                radius = location_filter["radius"]
                 if not self.is_within_radius(campground, center_lat, center_lon, radius):
                     continue  # Skip campgrounds outside the radius
 
@@ -262,8 +264,9 @@ class CampgroundData:
         campground_list = [campground["id"] for campground in results]
 
         print("Checking availability of following campgrounds: " + "\n".join(campground_list))
+        print(len(campground_list))
         available_campsites = get_available_campsites(campground_list, start_window_datetime, end_window_datetime, num_nights=num_nights, days_of_the_week=days_of_the_week)
-
+        cached_weather = {}
         available_filtered_campgrounds = []
         weather_filter = next((cond.get("weather") for cond in and_conditions if "weather" in cond), None)
         for campground in results:
@@ -271,7 +274,18 @@ class CampgroundData:
             for campsite in campground['campsites']:
                 if (campground["id"], campsite["campsite_id"]) in available_campsites:
                     campsite["available"] = available_campsites[(campground["id"], campsite["campsite_id"])]
-                    campsite["weathers"] = [get_weather_for_future_date(date_group[0], campsite["latitude"], campsite["longitude"], OPENWEATHER_API_KEY) for date_group in campsite["available"]]
+                    weathers = []
+                    for date_group in campsite["available"]:
+                        if (date_group[0], campground["latitude"], campground["longitude"]) not in cached_weather:
+                            weather_dict = get_weather_for_future_date(date_group[0], campground["latitude"], campground["longitude"],
+                                                        OPENWEATHER_API_KEY)
+                            weathers.append(weather_dict)
+                            #TODO: make this run on all days in group and filter all!
+                            #TODO: cache this to ddb instead
+                            cached_weather[(date_group[0], campground["latitude"], campground["longitude"])] = weather_dict
+                        else:
+                            weathers.append(cached_weather[(date_group[0], campground["latitude"], campground["longitude"])])
+                    campsite["weathers"] = weathers
                     self.filter_campsite_available_dates_by_weather(campsite, weather_conditions)
                     if not campsite["available"]:
                         campsite.pop('available', None)

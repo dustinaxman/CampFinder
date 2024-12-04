@@ -19,6 +19,8 @@ import { Delete as DeleteIcon } from "@mui/icons-material";
 const FILTER_OPTIONS = {
   "rating.average_rating": ["gt", "ge", "lt", "le", "eq", "between"],
   "rating.number_of_ratings": ["gt", "ge", "lt", "le", "eq", "between"],
+  "cell_coverage_rating.average_rating": ["gt", "ge", "lt", "le", "eq", "between"],
+  "cell_coverage_rating.number_of_ratings": ["gt", "ge", "lt", "le", "eq", "between"],
   "campsites.accessible": ["eq"],
   amenities: ["contains", "contains_any"],
   activities: ["contains", "contains_any"],

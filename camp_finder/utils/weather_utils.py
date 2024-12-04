@@ -1,5 +1,5 @@
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 import time
 
@@ -34,6 +34,9 @@ def get_rain_likelihood(precipitation_mm):
 # Function to calculate the average values
 def calculate_averages(date, lat, lon, api_key):
     current_year = datetime.now().year
+    if isinstance(date, str):
+        # Convert string to datetime
+        date = datetime.strptime(date, '%Y-%m-%d')
     total_min_temp = 0
     total_max_temp = 0
     total_cloud_cover = 0
@@ -67,11 +70,12 @@ def calculate_averages(date, lat, lon, api_key):
 
 
 def get_weather_for_future_date(date, lat, lon, api_key):
-    current_date = datetime.now()
+    current_date = datetime.now(timezone.utc)
     eight_days_in_future = current_date + timedelta(days=8)
     print(f"Current date: {current_date}")
     print(f"Requested date: {date}")
     print(f"{lat}, {lon}")
+    date = datetime.fromisoformat(date.replace("Z", "+00:00"))
     if date < eight_days_in_future:
         print("Using more accurate daily weather <8 days")
         weather_url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units=imperial&exclude=current,minutely,hourly,alerts&appid={api_key}"

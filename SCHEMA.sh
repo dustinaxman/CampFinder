@@ -1,12 +1,28 @@
 
 
 {
+  "availability": {
+  	"start_window_date": 2024-12-01 #string YYYY-MM-DD,
+  	"end_window_date": 2024-12-30 #string YYYY-MM-DD,
+  	"num_nights": 2, #int
+  	"days_of_the_week": [4, 5] # list[int] [0,1,2,3,4,5,6] Monday is 0 and Sunday is 6
+  	}
   "filters": {
     "weather": {"min_temp": {"gt": 40.0}, "rain_amount_mm": {"lt": 1.0 }, "humidity": {"between": [20, 70]}, "max_temp": {"between": [60, 90]} },
+    "location": { "center": [34.0522, -118.2437], "radius": 50 } },
     "AND": [
       { "rating.average_rating": { "gt": 4.0 } },
-      { "campsites.attributes.accessible": { "eq": true } },
-      { "location": { "within_radius": { "center": [34.0522, -118.2437], "radius": 50 } } }
+      { "campsites.accessible": { "eq": true } },
+      { "rating.number_of_ratings": { "between": (10, 50) } },
+      { "amenities": {"contains": [""]}},
+      { "activities": {"contains_any": [""]}},
+      { "campsites.attributes": {"contains": {"driveway length": { "gt": 20 } } } },
+      { "campsites.attributes": {"contains": {"campfire allowed": { "eq": true } } } },
+      { "campsites.attributes": {"contains": "campfire allowed" } },
+    ],
+    "OR": [
+      { "rating.average_rating": { "lt": 2.0 } },
+      { "campsites.accessible": { "eq": true } }
     ]
   },
   "sort": {
@@ -14,7 +30,6 @@
     "reverse": true
   }
 }
-
 
 python3.9 convert_and_process_raw_data.py /Users/deaxman/Downloads/all_data_backup2_GOOD_3784.jsonl /Users/deaxman/Downloads/recgov_converted_campgrounds_3784.jsonl
 
@@ -145,6 +160,9 @@ python3.9 convert_and_process_raw_data.py /Users/deaxman/Downloads/all_data_back
   "title": "Campground Query Schema",
   "type": "object",
   "properties": {
+    "availability": {
+      "$ref": "#/definitions/availability"
+    },
     "filters": {
       "type": "object",
       "properties": {
@@ -158,10 +176,13 @@ python3.9 convert_and_process_raw_data.py /Users/deaxman/Downloads/all_data_back
         "OR": {
           "type": "array",
           "items": { "$ref": "#/definitions/condition" }
+        },
+        "location": {
+          "$ref": "#/definitions/locationCondition"
         }
       },
       "patternProperties": {
-        "^(?!weather$|AND$|OR$).+$": {
+        "^(?!weather$|AND$|OR$|location$).+$": {
           "$ref": "#/definitions/condition"
         }
       },
@@ -193,6 +214,24 @@ python3.9 convert_and_process_raw_data.py /Users/deaxman/Downloads/all_data_back
   "required": ["filters", "sort"],
   "additionalProperties": false,
   "definitions": {
+    "availability": {
+      "type": "object",
+      "properties": {
+        "start_window_date": { "type": "string", "format": "date" },
+        "end_window_date": { "type": "string", "format": "date" },
+        "num_nights": { "type": "integer", "minimum": 1 },
+        "days_of_the_week": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6
+          }
+        }
+      },
+      "required": ["start_window_date", "end_window_date", "num_nights", "days_of_the_week"],
+      "additionalProperties": false
+    },
     "condition": {
       "type": "object",
       "additionalProperties": false,
@@ -210,9 +249,6 @@ python3.9 convert_and_process_raw_data.py /Users/deaxman/Downloads/all_data_back
         },
         "^campsites\\.attributes$": {
           "$ref": "#/definitions/campsiteAttributesCondition"
-        },
-        "^location$": {
-          "$ref": "#/definitions/locationCondition"
         }
       }
     },
@@ -301,23 +337,16 @@ python3.9 convert_and_process_raw_data.py /Users/deaxman/Downloads/all_data_back
     "locationCondition": {
       "type": "object",
       "properties": {
-        "within_radius": {
-          "type": "object",
-          "properties": {
-            "center": {
-              "type": "array",
-              "items": { "type": "number" },
-              "minItems": 2,
-              "maxItems": 2
-            },
-            "radius": { "type": "number" }
-          },
-          "required": ["center", "radius"],
-          "additionalProperties": false
-        }
+        "center": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "radius": { "type": "number" }
       },
-      "additionalProperties": false,
-      "required": ["within_radius"]
+      "required": ["center", "radius"],
+      "additionalProperties": false
     },
     "weatherCondition": {
       "type": "object",
@@ -331,14 +360,8 @@ python3.9 convert_and_process_raw_data.py /Users/deaxman/Downloads/all_data_back
     }
   }
 }
-
-
-
-
-
-
-
-
+python
+Copy code
 import google.generativeai as genai
 from typing import TypedDict, Union, List, Dict, Literal
 
@@ -415,24 +438,12 @@ class ListCondition(TypedDict, total=False):
     contains: List[Literal[tuple(amenities_list + activities_list)]]
     contains_any: List[Literal[tuple(amenities_list + activities_list)]]
 
-# Define LocationWithinRadiusCondition
-class LocationWithinRadiusCondition(TypedDict):
+# Define LocationCondition
+class LocationCondition(TypedDict):
     center: List[float]  # [latitude, longitude]
     radius: float        # Radius in kilometers
 
-# Define LocationCondition
-class LocationCondition(TypedDict):
-    within_radius: LocationWithinRadiusCondition
-
 # Define Condition
-ConditionValue = Union[
-    NumericCondition,
-    BooleanCondition,
-    ListCondition,
-    CampsiteAttributesCondition,
-    LocationCondition
-]
-
 class Condition(TypedDict, total=False):
     rating_average_rating: NumericCondition
     rating_number_of_ratings: NumericCondition
@@ -442,13 +453,13 @@ class Condition(TypedDict, total=False):
     amenities: ListCondition
     activities: ListCondition
     campsites_attributes: CampsiteAttributesCondition
-    location: LocationCondition
 
 # Define Filters
 class Filters(TypedDict, total=False):
     weather: Dict[str, NumericCondition]
     AND: List[Condition]
     OR: List[Condition]
+    location: LocationCondition
     # Additional conditions can be included directly
     rating_average_rating: NumericCondition
     rating_number_of_ratings: NumericCondition
@@ -458,7 +469,13 @@ class Filters(TypedDict, total=False):
     amenities: ListCondition
     activities: ListCondition
     campsites_attributes: CampsiteAttributesCondition
-    location: LocationCondition
+
+# Define Availability
+class Availability(TypedDict):
+    start_window_date: str  # YYYY-MM-DD
+    end_window_date: str    # YYYY-MM-DD
+    num_nights: int
+    days_of_the_week: List[int]  # 0 (Monday) to 6 (Sunday)
 
 # Define Sort
 class Sort(TypedDict):
@@ -466,7 +483,8 @@ class Sort(TypedDict):
     reverse: bool
 
 # Define the overall QuerySchema
-class QuerySchema(TypedDict):
+class QuerySchema(TypedDict, total=False):
+    availability: Availability
     filters: Filters
     sort: Sort
 
